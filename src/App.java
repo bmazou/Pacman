@@ -18,18 +18,14 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class App extends JPanel implements ActionListener {
-
     private Dimension d;
     private final Font smallFont = new Font("Arial", Font.BOLD, 14);
-    private boolean inGame = false;
-    private boolean dying = false;
+    public boolean inGame = false;
+    public boolean dying = false;
 
-    public final int BLOCK_SIZE = 24;
-    public final int N_BLOCKS = 15;
+    public static final int BLOCK_SIZE = 36;
+    public static final int N_BLOCKS = 15;
     private final int SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
-    private final int MAX_GHOSTS = 12;
-
-    private int N_GHOSTS = 6;
     public int lives, score;
 
     private Image heart, ghost;
@@ -53,23 +49,22 @@ public class App extends JPanel implements ActionListener {
             25, 24, 24, 24, 26, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28
     };
 
-    private final int maxSpeed = 6;
-
-    private int currentSpeed = 3;
     public short[] screenData;
     private Timer timer;
     private Pacman pacman;
     private Ghost[] ghosts;
+    private final int GHOST_COUNT = 4;
+    private final int GHOST_SPEED = 3;
+    private final int PACMAN_SPEED = 4;
 
     public App() {
-
         loadImages();
         initVariables();
         addKeyListener(new TAdapter());
         setFocusable(true);
         initGame();
 
-        // TODO Ghost pacman collisions
+        // TODO: Add win condition
     }
 
     private void loadImages() {
@@ -79,20 +74,32 @@ public class App extends JPanel implements ActionListener {
         right = new ImageIcon(getClass().getResource("./images/right.gif")).getImage();
         ghost = new ImageIcon(getClass().getResource("./images/ghost.gif")).getImage();
         heart = new ImageIcon(getClass().getResource("./images/heart.png")).getImage();
+
+        // Resize the images to fit the block size
+        down = down.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        up = up.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        left = left.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        right = right.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        ghost = ghost.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
     }
 
     private void initVariables() {
-        pacman = new Pacman(7 * BLOCK_SIZE, 11 * BLOCK_SIZE, this);
+        pacman = new Pacman(PACMAN_SPEED, 7 * BLOCK_SIZE, 11 * BLOCK_SIZE, this);
 
         screenData = new short[N_BLOCKS * N_BLOCKS];
-        d = new Dimension(400, 400);
+        d = new Dimension(BLOCK_SIZE * N_BLOCKS, BLOCK_SIZE * N_BLOCKS);
 
-        ghosts = new Ghost[4];
+        ghosts = new Ghost[GHOST_COUNT];
         for (int i = 0; i < ghosts.length; i++) {
-            ghosts[i] = new Ghost(7 * BLOCK_SIZE, 7 * BLOCK_SIZE, this);
+            ghosts[i] = new Ghost(GHOST_SPEED, 7 * BLOCK_SIZE, 7 * BLOCK_SIZE, this, pacman);
         }
 
-        timer = new Timer(40, this);
+        timer = new Timer(25, this);
         timer.start();
     }
 
@@ -104,7 +111,6 @@ public class App extends JPanel implements ActionListener {
             pacman.move();
             drawPacman(g2d);
             moveGhosts(g2d);
-            checkMaze();
         }
     }
 
@@ -122,34 +128,6 @@ public class App extends JPanel implements ActionListener {
 
         for (int i = 0; i < lives; i++) {
             g.drawImage(heart, i * 28 + 8, SCREEN_SIZE + 1, this);
-        }
-    }
-
-    private void checkMaze() {
-
-        int i = 0;
-        boolean finished = true;
-
-        while (i < N_BLOCKS * N_BLOCKS && finished) {
-
-            if ((screenData[i]) != 0) {
-                finished = false;
-            }
-
-            i++;
-        }
-
-        if (finished) {
-            score += 50;
-            if (N_GHOSTS < MAX_GHOSTS) {
-                N_GHOSTS++;
-            }
-
-            if (currentSpeed < maxSpeed) {
-                currentSpeed++;
-            }
-
-            initLevel();
         }
     }
 
@@ -191,7 +169,6 @@ public class App extends JPanel implements ActionListener {
     }
 
     private void drawMaze(Graphics2D g2d) {
-
         short i = 0;
         int x, y;
 
@@ -225,7 +202,7 @@ public class App extends JPanel implements ActionListener {
 
                 if ((screenData[i] & 16) != 0) {
                     g2d.setColor(new Color(255, 255, 255));
-                    g2d.fillOval(x + 10, y + 10, 6, 6);
+                    g2d.fillOval(x + 10, y + 10, BLOCK_SIZE / 4, BLOCK_SIZE / 4);
                 }
 
                 i++;
@@ -237,12 +214,9 @@ public class App extends JPanel implements ActionListener {
         lives = 3;
         score = 0;
         initLevel();
-        N_GHOSTS = 6;
-        currentSpeed = 3;
     }
 
     private void initLevel() {
-
         int i;
         for (i = 0; i < N_BLOCKS * N_BLOCKS; i++) {
             screenData[i] = levelData[i];
@@ -251,12 +225,14 @@ public class App extends JPanel implements ActionListener {
         continueLevel();
     }
 
+    // Get's called during beginning of game and when pacman loses a life - resets
+    // pacman and ghosts
     private void continueLevel() {
-
         for (int i = 0; i < ghosts.length; i++) {
             ghosts[i].newGame(4 * BLOCK_SIZE, 4 * BLOCK_SIZE);
         }
         pacman.newGame(7 * BLOCK_SIZE, 11 * BLOCK_SIZE);
+        dying = false;
     }
 
     public void paintComponent(Graphics g) {
@@ -285,7 +261,6 @@ public class App extends JPanel implements ActionListener {
 
         @Override
         public void keyPressed(KeyEvent e) {
-
             int key = e.getKeyCode();
 
             if (inGame) {
@@ -313,5 +288,4 @@ public class App extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         repaint();
     }
-
 }

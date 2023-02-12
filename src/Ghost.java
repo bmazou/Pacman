@@ -2,14 +2,17 @@ import java.util.Timer;
 
 public class Ghost extends GameObject {
     private Timer timer;
-    private final int CHANGE_DIRECTION_INTERVAL = 500;
+    private Pacman pacman;
+    // private int counter;
+    private final int CHANGE_DIRECTION_INTERVAL = 700;
 
-    // TODO v App model dát static věci ať to sem nemusim dávat
-    public Ghost(int x, int y, App model) {
+    // ? Semirandomize speed?
+    public Ghost(int speed, int x, int y, App game, Pacman pacman) {
         this.x = x;
         this.y = y;
-        this.speed = 3;
-        this.model = model;
+        this.speed = speed;
+        this.game = game;
+        this.pacman = pacman;
 
         randomizeDirection();
         setupTimer();
@@ -18,9 +21,11 @@ public class Ghost extends GameObject {
     private void setupTimer() {
         timer = new Timer();
 
-        // Randomize interval so its +- 1/3 of CHANGE_DIRECTION_INTERVAL
-        int curGhostInterval = CHANGE_DIRECTION_INTERVAL + (int) (Math.random() * CHANGE_DIRECTION_INTERVAL / 3)
-                - (int) (Math.random() * CHANGE_DIRECTION_INTERVAL / 3);
+        // Get random number between 2/3 and 4/3
+        double random = (Math.random() * 0.66) + 0.66;
+
+        int curGhostInterval = (int) (CHANGE_DIRECTION_INTERVAL * random);
+
         timer.schedule(new java.util.TimerTask() {
             @Override
             public void run() {
@@ -30,13 +35,30 @@ public class Ghost extends GameObject {
     }
 
     public void move() {
+        if (collisionOccured(direction, getTile())) {
+            // System.out.println("Collision occured:" + ++counter);
+            randomizeDirection();
+        }
+
         if (canTurn()) {
-            int pos = x / model.BLOCK_SIZE + model.N_BLOCKS * (int) (y / model.BLOCK_SIZE);
-            short tile = model.screenData[pos];
+            short tile = getTile();
             changeDirection(tile);
         }
 
         updatePosition();
+        checkPacmanCollision();
+    }
+
+    private void checkPacmanCollision() {
+        int pacX = pacman.x;
+        int pacY = pacman.y;
+        int halfBlockSize = Math.round(App.BLOCK_SIZE / 2);
+
+        boolean xCollision = (pacX > x - halfBlockSize && pacX < x + halfBlockSize);
+        boolean yCollision = (pacY > y - halfBlockSize && pacY < y + halfBlockSize);
+        if (xCollision && yCollision && game.inGame) {
+            game.dying = true;
+        }
     }
 
     public void newGame(int newX, int newY) {
@@ -45,29 +67,48 @@ public class Ghost extends GameObject {
         this.direction = Direction.DOWN;
     }
 
-    public void randomizeDirection() {
-        // Randomize direction, so it doesn't go in the same direction every time, and
-        // it can't go into a wall
+    // TODO Možná ať to povolí jít opačně když narazí do zdi
+    // Go to the 4 directions randomly, or directly to the pacman with extra 2/6 chance
+    // Meaning that overall the ghost has 50% chance to go directly to the pacman each turn (unless it's blocked by wall)
+    private void randomizeDirection() {
         do {
-            int random = (int) (Math.random() * 4);
-            switch (random) {
-                case 0:
-                    requestedDir = Direction.LEFT;
-                    break;
-                case 1:
-                    requestedDir = Direction.RIGHT;
-                    break;
-                case 2:
-                    requestedDir = Direction.UP;
-                    break;
-                case 3:
-                    requestedDir = Direction.DOWN;
-                    break;
+            int random = (int) (Math.random() * 6);
+            if (random == 0) {
+                requestedDir = Direction.UP;
+            } else if (random == 1) {
+                requestedDir = Direction.DOWN;
+            } else if (random == 2) {
+                requestedDir = Direction.LEFT;
+            } else if (random == 3) {
+                requestedDir = Direction.RIGHT;
+            } else { // random == 4 || random == 5
+                requestedDir = getDirectionToPacman();
             }
 
-        } while (collisionOccured(requestedDir,
-                model.screenData[x / model.BLOCK_SIZE + model.N_BLOCKS * (int) (y / model.BLOCK_SIZE)])
-                || areOppositeDirections(requestedDir, direction));
+        } while (collisionOccured(requestedDir, getTile()) || areOppositeDirections(requestedDir, direction));
+    }
+
+    // Function that returns the direction to the pacman
+    private Direction getDirectionToPacman() {
+        int pacX = pacman.x;
+        int pacY = pacman.y;
+
+        int xDiff = pacX - x;
+        int yDiff = pacY - y;
+
+        if (Math.abs(xDiff) > Math.abs(yDiff)) {
+            if (xDiff > 0) {
+                return Direction.RIGHT;
+            } else {
+                return Direction.LEFT;
+            }
+        } else {
+            if (yDiff > 0) {
+                return Direction.DOWN;
+            } else {
+                return Direction.UP;
+            }
+        }
     }
 
 }

@@ -9,7 +9,7 @@ public abstract class GameObject {
     public int speed;
     public Direction direction;
     public Direction requestedDir = Direction.NONE;
-    protected App model;
+    protected App game;
 
     protected boolean collisionOccured(Direction dir, short tile) {
         boolean leftWallColision = dir == Direction.LEFT && (tile & 1) != 0;
@@ -21,7 +21,15 @@ public abstract class GameObject {
     }
 
     protected boolean canTurn() {
-        return x % model.BLOCK_SIZE == 0 && y % model.BLOCK_SIZE == 0;
+        return x % App.BLOCK_SIZE == 0 && y % App.BLOCK_SIZE == 0;
+    }
+
+    protected int getPos() {
+        return x / App.BLOCK_SIZE + App.N_BLOCKS * (int) (y / App.BLOCK_SIZE);
+    }
+
+    protected short getTile() {
+        return game.screenData[getPos()];
     }
 
     protected void changeDirection(short tile) {
