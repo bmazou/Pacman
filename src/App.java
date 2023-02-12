@@ -28,18 +28,12 @@ public class App extends JPanel implements ActionListener {
     public final int N_BLOCKS = 15;
     private final int SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
     private final int MAX_GHOSTS = 12;
-    private final int PACMAN_SPEED = 6;
 
     private int N_GHOSTS = 6;
     public int lives, score;
-    private int[] dx, dy;
-    private int[] ghost_x, ghost_y, ghost_dx, ghost_dy, ghostSpeed;
 
     private Image heart, ghost;
     private Image up, down, left, right;
-
-    private int pacman_x, pacman_y, pacmand_x, pacmand_y;
-    private int req_dx, req_dy;
 
     private final short levelData[] = {
             19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
@@ -59,13 +53,13 @@ public class App extends JPanel implements ActionListener {
             25, 24, 24, 24, 26, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28
     };
 
-    private final int validSpeeds[] = { 1, 2, 3, 4, 6, 8 };
     private final int maxSpeed = 6;
 
     private int currentSpeed = 3;
     public short[] screenData;
     private Timer timer;
     private Pacman pacman;
+    private Ghost[] ghosts;
 
     public App() {
 
@@ -74,9 +68,10 @@ public class App extends JPanel implements ActionListener {
         addKeyListener(new TAdapter());
         setFocusable(true);
         initGame();
+
+        // TODO Ghost pacman collisions
     }
 
-    // TODO: Tohle do pacmana
     private void loadImages() {
         down = new ImageIcon(getClass().getResource("./images/down.gif")).getImage();
         up = new ImageIcon(getClass().getResource("./images/up.gif")).getImage();
@@ -91,13 +86,11 @@ public class App extends JPanel implements ActionListener {
 
         screenData = new short[N_BLOCKS * N_BLOCKS];
         d = new Dimension(400, 400);
-        ghost_x = new int[MAX_GHOSTS];
-        ghost_dx = new int[MAX_GHOSTS];
-        ghost_y = new int[MAX_GHOSTS];
-        ghost_dy = new int[MAX_GHOSTS];
-        ghostSpeed = new int[MAX_GHOSTS];
-        dx = new int[4];
-        dy = new int[4];
+
+        ghosts = new Ghost[4];
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i] = new Ghost(7 * BLOCK_SIZE, 7 * BLOCK_SIZE, this);
+        }
 
         timer = new Timer(40, this);
         timer.start();
@@ -171,74 +164,9 @@ public class App extends JPanel implements ActionListener {
     }
 
     private void moveGhosts(Graphics2D g2d) {
-
-        int pos;
-        int count;
-
-        for (int i = 0; i < N_GHOSTS; i++) {
-            if (ghost_x[i] % BLOCK_SIZE == 0 && ghost_y[i] % BLOCK_SIZE == 0) {
-                pos = ghost_x[i] / BLOCK_SIZE + N_BLOCKS * (int) (ghost_y[i] / BLOCK_SIZE);
-
-                count = 0;
-
-                if ((screenData[pos] & 1) == 0 && ghost_dx[i] != 1) {
-                    dx[count] = -1;
-                    dy[count] = 0;
-                    count++;
-                }
-
-                if ((screenData[pos] & 2) == 0 && ghost_dy[i] != 1) {
-                    dx[count] = 0;
-                    dy[count] = -1;
-                    count++;
-                }
-
-                if ((screenData[pos] & 4) == 0 && ghost_dx[i] != -1) {
-                    dx[count] = 1;
-                    dy[count] = 0;
-                    count++;
-                }
-
-                if ((screenData[pos] & 8) == 0 && ghost_dy[i] != -1) {
-                    dx[count] = 0;
-                    dy[count] = 1;
-                    count++;
-                }
-
-                if (count == 0) {
-
-                    if ((screenData[pos] & 15) == 15) {
-                        ghost_dx[i] = 0;
-                        ghost_dy[i] = 0;
-                    } else {
-                        ghost_dx[i] = -ghost_dx[i];
-                        ghost_dy[i] = -ghost_dy[i];
-                    }
-
-                } else {
-
-                    count = (int) (Math.random() * count);
-
-                    if (count > 3) {
-                        count = 3;
-                    }
-
-                    ghost_dx[i] = dx[count];
-                    ghost_dy[i] = dy[count];
-                }
-
-            }
-
-            ghost_x[i] = ghost_x[i] + (ghost_dx[i] * ghostSpeed[i]);
-            ghost_y[i] = ghost_y[i] + (ghost_dy[i] * ghostSpeed[i]);
-            drawGhost(g2d, ghost_x[i] + 1, ghost_y[i] + 1);
-
-            if (pacman_x > (ghost_x[i] - 12) && pacman_x < (ghost_x[i] + 12)
-                    && pacman_y > (ghost_y[i] - 12) && pacman_y < (ghost_y[i] + 12)
-                    && inGame) {
-
-                dying = true;
-            }
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i].move();
+            drawGhost(g2d, ghosts[i].x, ghosts[i].y);
         }
     }
 
@@ -325,25 +253,9 @@ public class App extends JPanel implements ActionListener {
 
     private void continueLevel() {
 
-        int dx = 1;
-        int random;
-
-        for (int i = 0; i < N_GHOSTS; i++) {
-
-            ghost_y[i] = 4 * BLOCK_SIZE; // start position
-            ghost_x[i] = 4 * BLOCK_SIZE;
-            ghost_dy[i] = 0;
-            ghost_dx[i] = dx;
-            dx = -dx;
-            random = (int) (Math.random() * (currentSpeed + 1));
-
-            if (random > currentSpeed) {
-                random = currentSpeed;
-            }
-
-            ghostSpeed[i] = validSpeeds[random];
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i].newGame(4 * BLOCK_SIZE, 4 * BLOCK_SIZE);
         }
-
         pacman.newGame(7 * BLOCK_SIZE, 11 * BLOCK_SIZE);
     }
 
@@ -378,20 +290,12 @@ public class App extends JPanel implements ActionListener {
 
             if (inGame) {
                 if (key == KeyEvent.VK_LEFT) {
-                    req_dx = -1;
-                    req_dy = 0;
                     pacman.requestedDir = Direction.LEFT;
                 } else if (key == KeyEvent.VK_RIGHT) {
-                    req_dx = 1;
-                    req_dy = 0;
                     pacman.requestedDir = Direction.RIGHT;
                 } else if (key == KeyEvent.VK_UP) {
-                    req_dx = 0;
-                    req_dy = -1;
                     pacman.requestedDir = Direction.UP;
                 } else if (key == KeyEvent.VK_DOWN) {
-                    req_dx = 0;
-                    req_dy = 1;
                     pacman.requestedDir = Direction.DOWN;
                 } else if (key == KeyEvent.VK_ESCAPE && timer.isRunning()) {
                     inGame = false;
