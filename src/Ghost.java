@@ -3,8 +3,7 @@ import java.util.Timer;
 public class Ghost extends GameObject {
     private Timer timer;
     private Pacman pacman;
-    // private int counter;
-    private final int CHANGE_DIRECTION_INTERVAL = 700;
+    private final int CHANGE_DIRECTION_INTERVAL = 400;
 
     // ? Semirandomize speed?
     public Ghost(int speed, int x, int y, App game, Pacman pacman) {
@@ -22,7 +21,8 @@ public class Ghost extends GameObject {
         timer = new Timer();
 
         // Get random number between 2/3 and 4/3
-        double random = (Math.random() * 0.66) + 0.66;
+        double random = (Math.random() * 1) + 0.5;
+        System.out.println("Random: " + random);
 
         int curGhostInterval = (int) (CHANGE_DIRECTION_INTERVAL * random);
 
@@ -36,7 +36,6 @@ public class Ghost extends GameObject {
 
     public void move() {
         if (collisionOccured(direction, getTile())) {
-            // System.out.println("Collision occured:" + ++counter);
             randomizeDirection();
         }
 
@@ -68,11 +67,12 @@ public class Ghost extends GameObject {
     }
 
     // TODO Možná ať to povolí jít opačně když narazí do zdi
+    //? Ten pacman seeking dát jen když je v blízkosti?
     // Go to the 4 directions randomly, or directly to the pacman with extra 2/6 chance
     // Meaning that overall the ghost has 50% chance to go directly to the pacman each turn (unless it's blocked by wall)
     private void randomizeDirection() {
         do {
-            int random = (int) (Math.random() * 6);
+            int random = (int) (Math.random() * 8);
             if (random == 0) {
                 requestedDir = Direction.UP;
             } else if (random == 1) {

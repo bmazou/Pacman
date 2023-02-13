@@ -12,19 +12,27 @@ public class Pacman extends GameObject {
 
     public void move() {
         if (canTurn()) {
-            int pos = getPos();
             short tile = getTile();
-            checkFoodColision(pos, tile);
+            checkFoodCollision2();
             changeDirection(tile);
         }
 
         updatePosition();
+
+        // System.out.println("X:" + x / game.BLOCK_SIZE + " Y:" + y / game.BLOCK_SIZE);
     }
 
-    private void checkFoodColision(int pos, short tile) {
+    private void checkFoodCollision2() {
+        int posX = getPosArrI();
+        int poxY = getPosArrJ();
+        short tile = getTile();
         if ((tile & 16) != 0) {
-            game.screenData[pos] = (short) (tile & 15);
+            game.screenData[posX][poxY] = (short) (tile & 15);
             game.score++;
+            System.out.println("Just ate at - X:" + posX + " Y:" + poxY);
+            System.out.println("tile is now:" + game.screenData[posX][poxY] + "... because (tile & 15) is:" + ((short) tile & 15));
+            System.out.println("tile was " + tile + " and (tile & 15) is:" + ((short) tile & 15));
+            System.out.println();
         }
     }
 

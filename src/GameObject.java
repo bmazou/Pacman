@@ -24,13 +24,18 @@ public abstract class GameObject {
         return x % App.BLOCK_SIZE == 0 && y % App.BLOCK_SIZE == 0;
     }
 
-    protected int getPos() {
-        return x / App.BLOCK_SIZE + App.N_BLOCKS * (int) (y / App.BLOCK_SIZE);
+    protected int getPosArrI() {    
+        return y / App.BLOCK_SIZE;
+    }
+
+    protected int getPosArrJ() {
+        return x / App.BLOCK_SIZE;
     }
 
     protected short getTile() {
-        return game.screenData[getPos()];
+        return game.screenData[getPosArrI()][getPosArrJ()];
     }
+
 
     protected void changeDirection(short tile) {
         if (requestedDir == Direction.NONE)
@@ -45,7 +50,8 @@ public abstract class GameObject {
     }
 
     protected boolean areOppositeDirections(Direction dir1, Direction dir2) {
-        return (dir1 == Direction.UP && dir2 == Direction.DOWN) || (dir1 == Direction.DOWN && dir2 == Direction.UP)
+        return (dir1 == Direction.UP && dir2 == Direction.DOWN)
+                || (dir1 == Direction.DOWN && dir2 == Direction.UP)
                 || (dir1 == Direction.LEFT && dir2 == Direction.RIGHT)
                 || (dir1 == Direction.RIGHT && dir2 == Direction.LEFT);
     }
