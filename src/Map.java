@@ -35,7 +35,7 @@ public class Map {
 		{ -1, -1, -1, -1, 0, -1, -1, -1, 0, -1, 0, -1, -1, -1, 0, -1, -1, -1, -1 }, 
 		{ 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0 }, 
 		{ 0, 0, 0, -1, 0, -1, 0, -1, -1, 4, -1, -1, 0, -1, 0, -1, 0, 0, 0 }, 
-		{ 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0 }, 
+		{ 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0 }, 
 		{ 0, 0, 0, -1, 0, -1, 0, -1, -1, -1, -1, -1, 0, -1, 0, -1, 0, 0, 0 }, 
 		{ 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0 }, 
 		{ -1, -1, -1, -1, 0, -1, 0, -1, -1, -1, -1, -1, 0, -1, 0, -1, -1, -1, -1 }, 
@@ -45,12 +45,22 @@ public class Map {
 		{ -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1 }, 
 		{ -1, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, -1 }, 
 		{ -1, 0, -1, -1, -1, -1, -1, -1, 0, -1, 0, -1, -1, -1, -1, -1, -1, 0, -1 }, 
-		// { -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1 }, 
-		// { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }  
+		{ -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1 }, 
+		{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }  
 	}; 
 
-    public static short[][] curMap = convertMap(pacmanMap);
-    
+    public static short[][] curMap;// = convertMap(pacmanMap.clone());
+
+    static {
+        System.out.println("OG map:");
+        printMap(pacmanMap);
+        short[][] temp = pacmanMap.clone();
+        System.out.println("After asigning");
+        printMap(pacmanMap);
+        curMap = convertMap(temp);
+        System.out.println("Converted map:");
+        printMap(pacmanMap);
+    }
 
     private static short[][] convertNeg1to0(short[][] map) {
         System.out.println("Converting -1's to 0's");
@@ -78,7 +88,6 @@ public class Map {
         // Add 8 if empty borders a wall on bottom
         // And at the end, convert -1's to 0's
 
-        System.out.println("Converting map");
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
                 if (map[y][x] == 0) {
@@ -111,23 +120,22 @@ public class Map {
             }
         }
         // return map;
-        return convertNeg1to0(map.clone());
+        return convertNeg1to0(map);
     }
 
     public static void printMap(short[][] map) {
+        System.out.println("\nCurrent map:");
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
                 System.out.print(map[y][x] + " ");
+                if (map[y][x] < 10 && map[y][x] > -1) {
+                    System.out.print(" ");
+                }
             }
             System.out.println();
         }
+        System.out.println();
     };
-    
-    public static void test() {
-        System.out.println("Test map:");
-        short[][] myMap = convertMap(testMap);
-        printMap(myMap);
-    }
 
     public static short[][] getMap() {
         return curMap;
@@ -137,8 +145,8 @@ public class Map {
         return curMap[0].length;
     }
 
-    public static void printMapDimensions() {
-        System.out.println("Map dimensions - x: " + getMapWidth() + ", y: " + curMap.length);
+    public static int getMapHeight() {
+        return curMap.length;
     }
 
 

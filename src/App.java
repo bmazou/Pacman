@@ -23,12 +23,15 @@ public class App extends JPanel implements ActionListener {
     public boolean inGame = false;
     public boolean dying = false;
 
-    public static final int BLOCK_SIZE = 24;
-    // public static final int X_BLOCK_COUNT = Map.getMap()[0].length;
-    public static final int N_BLOCKS = Map.getMap().length;
-    public static final int SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
-    public int lives, score;
     private final short[][] levelData = Map.getMap();
+    public static final int BLOCK_SIZE = 36;
+    public static final int X_BLOCK_COUNT = Map.getMapWidth();
+    public static final int Y_BLOCK_COUNT = Map.getMapHeight();
+
+    public static final int SCREEN_WIDTH = X_BLOCK_COUNT * BLOCK_SIZE;
+    public static final int SCREEN_HEIGHT = Y_BLOCK_COUNT * BLOCK_SIZE;
+    // public static final int N_BLOCKS = Map.getMap().length;
+    public int lives, score;
     
     private Image heart, ghost;
     private Image up, down, left, right;
@@ -43,8 +46,7 @@ public class App extends JPanel implements ActionListener {
     private final int PACMAN_SPEED = 4;
 
     public App() {
-        Map.printMapDimensions();
-        System.out.println(N_BLOCKS);
+        Map.printMap(Map.pacmanMap);
         Map.printMap(levelData);
 
         loadImages();
@@ -80,8 +82,8 @@ public class App extends JPanel implements ActionListener {
     private void initVariables() {
         pacman = new Pacman(PACMAN_SPEED, 0 * BLOCK_SIZE, 0 * BLOCK_SIZE, this);
 
-        d = new Dimension(BLOCK_SIZE * N_BLOCKS, BLOCK_SIZE * N_BLOCKS);
-        screenData = new short[N_BLOCKS][N_BLOCKS];
+        // d = new Dimension(BLOCK_SIZE * N_BLOCKS, BLOCK_SIZE * N_BLOCKS);
+        screenData = new short[Y_BLOCK_COUNT][X_BLOCK_COUNT];
 
         ghosts = new Ghost[GHOST_COUNT];
         for (int i = 0; i < ghosts.length; i++) {
@@ -106,17 +108,17 @@ public class App extends JPanel implements ActionListener {
     private void showIntroScreen(Graphics2D g2d) {
         String start = "Press SPACE to start";
         g2d.setColor(Color.yellow);
-        g2d.drawString(start, SCREEN_SIZE / 4, 150);
+        g2d.drawString(start, SCREEN_WIDTH / X_BLOCK_COUNT, 150);
     }
 
     private void drawScore(Graphics2D g) {
         g.setFont(smallFont);
         g.setColor(new Color(5, 181, 79));
         String s = "Score: " + score;
-        g.drawString(s, SCREEN_SIZE / 2 + 96, SCREEN_SIZE + 16);
+        g.drawString(s, SCREEN_WIDTH / X_BLOCK_COUNT + 96, SCREEN_WIDTH + X_BLOCK_COUNT);
 
         for (int i = 0; i < lives; i++) {
-            g.drawImage(heart, i * 28 + 8, SCREEN_SIZE + 1, this);
+            g.drawImage(heart, i * 28 + 8, SCREEN_HEIGHT, this);
         }
     }
 
@@ -159,8 +161,8 @@ public class App extends JPanel implements ActionListener {
 
 
     private void drawMaze2(Graphics2D g2d) {
-        for (int y = 0; y < N_BLOCKS; y++) {
-            for (int x = 0; x < N_BLOCKS; x++) {
+        for (int y = 0; y < Y_BLOCK_COUNT; y++) {
+            for (int x = 0; x < X_BLOCK_COUNT; x++) {
                 g2d.setColor(new Color(0, 72, 251));
                 g2d.setStroke(new BasicStroke(5));
 
@@ -196,9 +198,9 @@ public class App extends JPanel implements ActionListener {
     }
 
     private void initLevel() {
-        for (int x = 0; x < N_BLOCKS; x++) {
-            for (int y = 0; y < N_BLOCKS; y++) {
-                screenData[x][y] = levelData[x][y];
+        for (int y = 0; y < Y_BLOCK_COUNT; y++) {
+            for (int x = 0; x < X_BLOCK_COUNT; x++) {
+                screenData[y][x] = levelData[y][x];
             }
         }
 
@@ -222,10 +224,9 @@ public class App extends JPanel implements ActionListener {
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setColor(Color.black);
-        g2d.fillRect(0, 0, d.width, d.height);
+        g2d.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         drawMaze2(g2d);
-        // drawMaze(g2d);
         drawScore(g2d);
 
         if (inGame) {

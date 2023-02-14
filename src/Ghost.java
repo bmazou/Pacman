@@ -85,7 +85,8 @@ public class Ghost extends GameObject {
                 requestedDir = getDirectionToPacman();
             }
 
-        } while (collisionOccured(requestedDir, getTile()) || areOppositeDirections(requestedDir, direction));
+        } while (collisionOccured(requestedDir, getTile()));
+        // } while (collisionOccured(requestedDir, getTile()) || areOppositeDirections(requestedDir, direction));
     }
 
     // Function that returns the direction to the pacman

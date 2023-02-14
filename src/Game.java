@@ -12,7 +12,7 @@ public class Game extends JFrame {
 		Game pac = new Game();
 		pac.setVisible(true);
 		pac.setTitle("Pacman");
-		pac.setSize(App.SCREEN_SIZE + 20, App.SCREEN_SIZE + 60);
+		pac.setSize(App.SCREEN_WIDTH + 20, App.SCREEN_HEIGHT + 80);
 		pac.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pac.setLocationRelativeTo(null);
 	}
