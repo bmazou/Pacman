@@ -22,7 +22,6 @@ public class Ghost extends GameObject {
 
         // Get random number between 2/3 and 4/3
         double random = (Math.random() * 1) + 0.5;
-        System.out.println("Random: " + random);
 
         int curGhostInterval = (int) (CHANGE_DIRECTION_INTERVAL * random);
 

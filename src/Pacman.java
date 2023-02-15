@@ -18,8 +18,6 @@ public class Pacman extends GameObject {
         }
 
         updatePosition();
-
-        // System.out.println("X:" + x / game.BLOCK_SIZE + " Y:" + y / game.BLOCK_SIZE);
     }
 
     private void checkFoodCollision2() {
@@ -29,10 +27,6 @@ public class Pacman extends GameObject {
         if ((tile & 16) != 0) {
             game.screenData[posX][poxY] = (short) (tile & 15);
             game.score++;
-            System.out.println("Just ate at - X:" + posX + " Y:" + poxY);
-            System.out.println("tile is now:" + game.screenData[posX][poxY] + "... because (tile & 15) is:" + ((short) tile & 15));
-            System.out.println("tile was " + tile + " and (tile & 15) is:" + ((short) tile & 15));
-            System.out.println();
         }
     }
 

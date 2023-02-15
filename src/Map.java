@@ -16,111 +16,94 @@ public class Map {
         {17, 16, 16, 20, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 20},
         {25, 24, 24, 24, 26, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28}
     };
-    
-    public static final short[][] testMap = {
-        {-1, -1, 0, -1, -1},
-        {-1, 0, 0, 0, -1}, 
-        {-1, 0, 0, 0, -1}, 
-        {-1, 0, 0, 0, -1},
-        {-1, -1, -1, -1, -1}
-    };
 
     public static final short[][] pacmanMap = {
-		{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, 
-		{ -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1 }, 
-		{ -1, 0, -1, -1, 0, -1, -1, -1, 0, -1, 0, -1, -1, -1, 0, -1, -1, 0, -1 }, 
-		{ -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1 }, 
-		{ -1, 0, -1, -1, 0, -1, 0, -1, -1, -1, -1, -1, 0, -1, 0, -1, -1, 0, -1 }, 
-		{ -1, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, -1 }, 
-		{ -1, -1, -1, -1, 0, -1, -1, -1, 0, -1, 0, -1, -1, -1, 0, -1, -1, -1, -1 }, 
-		{ 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0 }, 
-		{ 0, 0, 0, -1, 0, -1, 0, -1, -1, 4, -1, -1, 0, -1, 0, -1, 0, 0, 0 }, 
-		{ 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0 }, 
-		{ 0, 0, 0, -1, 0, -1, 0, -1, -1, -1, -1, -1, 0, -1, 0, -1, 0, 0, 0 }, 
-		{ 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0 }, 
-		{ -1, -1, -1, -1, 0, -1, 0, -1, -1, -1, -1, -1, 0, -1, 0, -1, -1, -1, -1 }, 
-		{ -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1 }, 
-		{ -1, 0, -1, -1, 0, -1, -1, -1, 0, -1, 0, -1, -1, -1, 0, -1, -1, 0, -1 }, 
-		{ -1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, -1 }, 
-		{ -1, -1, 0, -1, 0, -1, 0, -1, -1, -1, -1, -1, 0, -1, 0, -1, 0, -1, -1 }, 
-		{ -1, 0, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0, -1 }, 
-		{ -1, 0, -1, -1, -1, -1, -1, -1, 0, -1, 0, -1, -1, -1, -1, -1, -1, 0, -1 }, 
-		{ -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1 }, 
-		{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }  
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 
+		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
+		{ 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 }, 
+		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
+		{ 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0 }, 
+		{ 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 }, 
+		{ 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 }, 
+		{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1 }, 
+		{ 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1 }, 
+		{ 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 }, 
+		{ 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1 }, 
+		{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1 }, 
+		{ 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0 }, 
+		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
+		{ 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 }, 
+		{ 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0 }, 
+		{ 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0 }, 
+		{ 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 }, 
+		{ 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0 }, 
+		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }  
 	}; 
 
-    public static short[][] curMap;// = convertMap(pacmanMap.clone());
+
+    public static short[][] curMap; // = convertMap(pacmanMap.clone());
 
     static {
-        System.out.println("OG map:");
-        printMap(pacmanMap);
-        short[][] temp = pacmanMap.clone();
-        System.out.println("After asigning");
-        printMap(pacmanMap);
-        curMap = convertMap(temp);
-        System.out.println("Converted map:");
-        printMap(pacmanMap);
+        convertMap();
     }
 
-    private static short[][] convertNeg1to0(short[][] map) {
-        System.out.println("Converting -1's to 0's");
+    private static void convert1to16(short[][] map) {
+        System.out.println("Converting 0's to 16's");
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
-                if (map[y][x] == -1) {
-                    map[y][x] = 0;
+                if (map[y][x] == 1) {
+                    map[y][x] = 16;
                 }
             }
         }
 
-        return map;
+        System.out.println("After converting 0's to 16's");
+        printMap(map);
     }
 
-    public static short[][] convertMap(short[][] map) {
-        // Takes a map with the following form:
-        // -1 = wall
-        // 0 = empty
-
-        // Converts the map the following way:
-        // Add 16 to empty
-        // Add 1 if empty borders a wall on left
-        // Add 2 if empty borders a wall on top
-        // Add 4 if empty borders a wall on right
-        // Add 8 if empty borders a wall on bottom
-        // And at the end, convert -1's to 0's
-
+    private static void addBorders(short[][] map) {
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
-                if (map[y][x] == 0) {
-                    map[y][x] += 16;
-
+                if (map[y][x] == 16) {
                     boolean isTopEdge = y == 0;
-                    boolean bordersTopWall = isTopEdge || map[y - 1][x] == -1;
+                    boolean bordersTopWall = isTopEdge || map[y - 1][x] == 0;
                     if (bordersTopWall) {
                         map[y][x] += 2;
                     }
 
                     boolean isBottomEdge = y == map.length - 1;
-                    boolean bordersBottomWall = isBottomEdge || map[y + 1][x] == -1;
+                    boolean bordersBottomWall = isBottomEdge || map[y + 1][x] == 0;
                     if (bordersBottomWall) {
                         map[y][x] += 8;
                     }
                     
                     boolean isLeftEdge = x == 0;
-                    boolean bordersLeftWall = isLeftEdge || map[y][x - 1] == -1;
+                    boolean bordersLeftWall = isLeftEdge || map[y][x - 1] == 0;
                     if (bordersLeftWall) {
                         map[y][x] += 1;
                     }
 
                     boolean isRightEdge = x == map[y].length - 1;
-                    boolean bordersRightWall = isRightEdge || map[y][x + 1] == -1;
+                    boolean bordersRightWall = isRightEdge || map[y][x + 1] == 0;
                     if (bordersRightWall) {
                         map[y][x] += 4;
                     }
                 }
             }
         }
-        // return map;
-        return convertNeg1to0(map);
+    }
+
+    public static void convertMap() {
+        // Takes a map with the following form:
+        // 1 = empty space
+        // 0 = wall
+
+        // curMap = pacmanMap.clone();
+        curMap = MapGenerator.getMap().clone();
+        printMap(curMap);
+        convert1to16(curMap);
+        addBorders(curMap);
     }
 
     public static void printMap(short[][] map) {

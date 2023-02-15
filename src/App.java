@@ -2,7 +2,6 @@
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class App extends JPanel implements ActionListener {
-    private Dimension d;
     private final Font smallFont = new Font("Arial", Font.BOLD, 14);
     public boolean inGame = false;
     public boolean dying = false;
@@ -46,7 +44,8 @@ public class App extends JPanel implements ActionListener {
     private final int PACMAN_SPEED = 4;
 
     public App() {
-        Map.printMap(Map.pacmanMap);
+        
+        // Map.printMap(Map.pacmanMap);
         Map.printMap(levelData);
 
         loadImages();

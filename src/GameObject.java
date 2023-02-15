@@ -1,7 +1,46 @@
 
 enum Direction {
-    UP, DOWN, LEFT, RIGHT, NONE
+    UP, RIGHT, DOWN, LEFT, NONE;
+
+    private static final Direction[] vals = values();
+
+    // Ignores NONE
+    public Direction next() {
+        return vals[(this.ordinal() + 1) % (vals.length - 1)];
+    }
+
+    // Ignores NONE
+    public Direction prev() {
+        return vals[(this.ordinal() - 1 + vals.length - 1) % (vals.length - 1)];
+    }
+
+    public Direction opposite() {
+        return vals[(this.ordinal() + 2) % (vals.length - 1)];
+    }
+
+    public int x() {
+        switch (this) {
+            case LEFT:
+                return -1;
+            case RIGHT:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    public int y() {
+        switch (this) {
+            case UP:
+                return -1;
+            case DOWN:
+                return 1;
+            default:
+                return 0;
+        }
+    }
 }
+
 
 public abstract class GameObject {
     public int x;
