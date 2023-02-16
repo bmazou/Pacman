@@ -44,7 +44,7 @@ public class App extends JPanel implements ActionListener {
     private final int PACMAN_SPEED = 4;
 
     public App() {
-        Map.printMap(levelData);
+        // Map.printMap(levelData);
         System.out.println("X_BLOCK_COUNT: " + X_BLOCK_COUNT);
         System.out.println("Y_BLOCK_COUNT: " + Y_BLOCK_COUNT);
 

@@ -49,7 +49,6 @@ public class Map {
     }
 
     private static void convert1to16(short[][] map) {
-        System.out.println("Converting 0's to 16's");
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
                 if (map[y][x] == 1) {
@@ -57,9 +56,6 @@ public class Map {
                 }
             }
         }
-
-        System.out.println("After converting 0's to 16's");
-        printMap(map);
     }
 
     private static void addBorders(short[][] map) {
@@ -101,7 +97,7 @@ public class Map {
 
         // curMap = pacmanMap.clone();
         curMap = MapGenerator.getMap().clone();
-        printMap(curMap);
+        // printMap(curMap);
         convert1to16(curMap);
         addBorders(curMap);
     }
