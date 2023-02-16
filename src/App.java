@@ -44,9 +44,9 @@ public class App extends JPanel implements ActionListener {
     private final int PACMAN_SPEED = 4;
 
     public App() {
-        
-        // Map.printMap(Map.pacmanMap);
         Map.printMap(levelData);
+        System.out.println("X_BLOCK_COUNT: " + X_BLOCK_COUNT);
+        System.out.println("Y_BLOCK_COUNT: " + Y_BLOCK_COUNT);
 
         loadImages();
         initVariables();
@@ -79,14 +79,14 @@ public class App extends JPanel implements ActionListener {
     }
 
     private void initVariables() {
-        pacman = new Pacman(PACMAN_SPEED, 0 * BLOCK_SIZE, 0 * BLOCK_SIZE, this);
+        pacman = new Pacman(PACMAN_SPEED, this);
 
         // d = new Dimension(BLOCK_SIZE * N_BLOCKS, BLOCK_SIZE * N_BLOCKS);
         screenData = new short[Y_BLOCK_COUNT][X_BLOCK_COUNT];
 
         ghosts = new Ghost[GHOST_COUNT];
         for (int i = 0; i < ghosts.length; i++) {
-            ghosts[i] = new Ghost(GHOST_SPEED, 4 * BLOCK_SIZE, 4 * BLOCK_SIZE, this, pacman);
+            ghosts[i] = new Ghost(GHOST_SPEED, this, pacman);
         }
 
         timer = new Timer(25, this);
@@ -211,9 +211,9 @@ public class App extends JPanel implements ActionListener {
     private void continueLevel() {
         for (int i = 0; i < ghosts.length; i++) {
             // TODO Tady se zase orientovat podle mapy
-            ghosts[i].newGame(4 * BLOCK_SIZE, 4 * BLOCK_SIZE);
+            ghosts[i].newGame( (X_BLOCK_COUNT /2) * BLOCK_SIZE, (Y_BLOCK_COUNT /2) * BLOCK_SIZE);
         }
-        pacman.newGame(7 * BLOCK_SIZE, 11 * BLOCK_SIZE);
+        pacman.newGame( (X_BLOCK_COUNT - 1)  * BLOCK_SIZE, (Y_BLOCK_COUNT - 1)* BLOCK_SIZE);
         dying = false;
     }
 

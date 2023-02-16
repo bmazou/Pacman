@@ -2,9 +2,7 @@ public class Pacman extends GameObject {
 
     public boolean dying = false;
 
-    public Pacman(int speed, int x, int y, App game) {
-        this.x = x;
-        this.y = y;
+    public Pacman(int speed, App game) {
         this.speed = speed;
         this.direction = Direction.NONE;
         this.game = game;
@@ -34,6 +32,7 @@ public class Pacman extends GameObject {
         x = newX;
         y = newY;
         direction = Direction.NONE;
+        requestedDir = Direction.NONE;
         dying = false;
     }
 

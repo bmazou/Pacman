@@ -18,7 +18,11 @@ enum Direction {
         return vals[(this.ordinal() + 2) % (vals.length - 1)];
     }
 
-    public int x() {
+    public Direction randomNextPrev() {
+        return Math.random() < 0.5 ? next() : prev();
+    }
+
+    public int dx() {
         switch (this) {
             case LEFT:
                 return -1;
@@ -29,7 +33,7 @@ enum Direction {
         }
     }
 
-    public int y() {
+    public int dy() {
         switch (this) {
             case UP:
                 return -1;

@@ -6,9 +6,7 @@ public class Ghost extends GameObject {
     private final int CHANGE_DIRECTION_INTERVAL = 400;
 
     // ? Semirandomize speed?
-    public Ghost(int speed, int x, int y, App game, Pacman pacman) {
-        this.x = x;
-        this.y = y;
+    public Ghost(int speed, App game, Pacman pacman) {
         this.speed = speed;
         this.game = game;
         this.pacman = pacman;
