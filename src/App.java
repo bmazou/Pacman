@@ -211,7 +211,8 @@ public class App extends JPanel implements ActionListener {
     private void continueLevel() {
         for (int i = 0; i < ghosts.length; i++) {
             // TODO Tady se zase orientovat podle mapy
-            ghosts[i].newGame( (X_BLOCK_COUNT /2) * BLOCK_SIZE, (Y_BLOCK_COUNT /2) * BLOCK_SIZE);
+            ghosts[i].newGame(0,0);
+            // ghosts[i].newGame( (X_BLOCK_COUNT /2) * BLOCK_SIZE, (Y_BLOCK_COUNT /2) * BLOCK_SIZE);
         }
         pacman.newGame( (X_BLOCK_COUNT - 1)  * BLOCK_SIZE, (Y_BLOCK_COUNT - 1)* BLOCK_SIZE);
         dying = false;

@@ -1,8 +1,9 @@
-
 enum Direction {
     UP, RIGHT, DOWN, LEFT, NONE;
 
     private static final Direction[] vals = values();
+    public static final Direction[] directionVals = {UP, RIGHT, DOWN, LEFT};
+
 
     // Ignores NONE
     public Direction next() {

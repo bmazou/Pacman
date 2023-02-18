@@ -1,22 +1,7 @@
-public class Map {
-    public static final short[][] defaultMap1 = {
-        {19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22},
-        {17, 16, 16, 16, 16, 24, 16, 16, 16, 16, 16, 16, 16, 16, 20},
-        {25, 24, 24, 24, 28, 0, 17, 16, 16, 16, 16, 16, 16, 16, 20},
-        {0, 0, 0, 0, 0, 0, 17, 16, 16, 16, 16, 16, 16, 16, 20},
-        {19, 18, 18, 18, 18, 18, 16, 16, 16, 16, 24, 24, 24, 24, 20},
-        {17, 16, 16, 16, 16, 16, 16, 16, 16, 20, 0, 0, 0, 0, 21},
-        {17, 16, 16, 16, 16, 16, 16, 16, 16, 20, 0, 0, 0, 0, 21},
-        {17, 16, 16, 16, 24, 16, 16, 16, 16, 20, 0, 0, 0, 0, 21},
-        {17, 16, 16, 20, 0, 17, 16, 16, 16, 16, 18, 18, 18, 18, 20},
-        {17, 24, 24, 28, 0, 25, 24, 24, 16, 16, 16, 16, 16, 16, 20},
-        {21, 0, 0, 0, 0, 0, 0, 0, 17, 16, 16, 16, 16, 16, 20},
-        {17, 18, 18, 22, 0, 19, 18, 18, 16, 16, 16, 16, 16, 16, 20},
-        {17, 16, 16, 20, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 20},
-        {17, 16, 16, 20, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 20},
-        {25, 24, 24, 24, 26, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28}
-    };
+import java.util.ArrayList;
+import java.util.HashMap;
 
+public class Map {
     public static final short[][] pacmanMap = {
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 
 		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
@@ -41,11 +26,108 @@ public class Map {
 		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }  
 	}; 
 
+    public static short[][] curMap = MapGenerator.getMap(); // = convertMap(pacmanMap.clone());
+    public static HashMap<String, Direction> pathDict = new HashMap<>();
 
-    public static short[][] curMap; // = convertMap(pacmanMap.clone());
 
     static {
         convertMap();
+        fillPathDict();
+        // Sort pathDict
+
+        System.out.println("PathDict:" + pathDict.size()); 
+        printMap(MapGenerator.getMap(), null);
+        // System.out.println("Should be RIGHT: " + pathDict.get("0,0,0,1"));
+        // System.out.println("Should be RIGHT: " + pathDict.get("0,0,0,10"));
+        // System.out.println("Should be LEFT: " + pathDict.get("0,10,0,3"));
+        // System.out.println("Should be DOWN: " + pathDict.get("2,0,10,0"));
+
+    }
+
+    public static short[][] copy(short[][] map) {
+        short[][] temp = new short[map.length][map[0].length];
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[0].length; j++) {
+                temp[i][j] = (short) map[i][j];
+            }
+        }
+
+        return temp;
+    }
+
+
+    public static void fillPathDict() {
+        short[][] map = MapGenerator.getMap();
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[y].length; x++) {
+                for (int targetY = 0; targetY < map.length; targetY++) {
+                    for (int targetX = 0; targetX < map[targetY].length; targetX++) {
+                        if (map[y][x] == 1 && map[targetY][targetX] == 1) {// && y < 4 && targetY < 4 && x < 4 && targetX < 4) {
+                            if (y == targetY && x == targetX) {
+                                pathDict.put(y + "," + x + "," + targetY + "," + targetX, Direction.NONE);
+                                // pathDict.put("" + y + x + targetY + targetX, Direction.NONE);
+                                continue;
+                            }
+                            ArrayList<Direction> path = findPath(y, x, targetY, targetX, Direction.NONE, new ArrayList<>(), MapGenerator.getMap());
+                            
+
+                            if (path != null && path.size() > 0) {
+                                pathDict.put(y + "," + x + "," + targetY + "," + targetX, path.get(0));
+                                // pathDict.put("" + y + x + targetY + targetX, path.get(0));
+                            }else {
+                                pathDict.put(y + "," + x + "," + targetY + "," + targetX, Direction.NONE);
+                                // pathDict.put("" + y + x + targetY + targetX, Direction.NONE);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    // A function that takes two poisitions in map, and finds the shortest path between them, returning the path as a list of directions, using DFS
+    public static ArrayList<Direction> findPath(int y, int x, int targetY, int TargetX, Direction dir, ArrayList<Direction> path, short[][] map) {
+        if (dir != Direction.NONE)
+            path.add(dir);
+        y += dir.dy();
+        x += dir.dx();
+        if (Map.isOutOfBounds(y, x)) {
+            return null;
+        };
+        if (y == targetY && x == TargetX) {
+            return path;
+        }
+
+        // 0 is a wall
+        if (map[y][x] == 0) {
+            return null;
+        }
+
+        // 2 is a visited node
+        if (map[y][x] == 2) {
+            return null;
+        }
+
+        map[y][x] = 2;
+
+        int shortestPathLen = Integer.MAX_VALUE;
+        ArrayList<Direction> shortestPath = null;
+        for (Direction nextDir : Direction.directionVals) {  
+            ArrayList<Direction> newPath = findPath(y, x, targetY, TargetX, nextDir, new ArrayList<>(path), copy(map));
+            if (newPath != null && newPath.size() < shortestPathLen) {
+                shortestPathLen = newPath.size();
+                shortestPath = newPath;
+            }
+        }
+        
+        return shortestPath;
+    }
+
+
+
+    public static boolean isOutOfBounds(int y, int x) {
+        return y < 0 || y >= getMapHeight() || x < 0 || x >= getMapWidth();
     }
 
     private static void convert1to16(short[][] map) {
@@ -94,16 +176,13 @@ public class Map {
         // Takes a map with the following form:
         // 1 = empty space
         // 0 = wall
-
-        // curMap = pacmanMap.clone();
-        curMap = MapGenerator.getMap().clone();
-        // printMap(curMap);
+        
         convert1to16(curMap);
         addBorders(curMap);
     }
 
-    public static void printMap(short[][] map) {
-        System.out.println("\nCurrent map:");
+    public static void printMap(short[][] map, String message) {
+        System.out.println(message);
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
                 System.out.print(map[y][x] + " ");
@@ -113,11 +192,18 @@ public class Map {
             }
             System.out.println();
         }
-        System.out.println();
+        System.out.println("\n");
     };
 
     public static short[][] getMap() {
-        return curMap;
+        short[][] temp = new short[getMapHeight()][getMapWidth()];
+        for (int i = 0; i < getMapHeight(); i++) {
+            for (int j = 0; j < getMapWidth(); j++) {
+                temp[i][j] = (short) curMap[i][j];
+            }
+        }
+
+        return temp;
     }
 
     public static int getMapWidth() {

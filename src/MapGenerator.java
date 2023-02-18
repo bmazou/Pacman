@@ -7,8 +7,8 @@ public class MapGenerator {
         {0, 0, 0, 0, 0}
     };
 
-    private static final int MAP_WIDTH = 23; 
-    private static final int MAP_HEIGHT = 23;
+    private static final int MAP_WIDTH = 9; 
+    private static final int MAP_HEIGHT = 9;
     private static final float BRANCH_CHANCE = 0.2f;    //TODO Tohle bych mohl generavat náhodně (0.3 - 0.7 ?)
     private static final int MAX_BRANCHES = 6;          //TODO Tohle asi klidně taky
 
@@ -29,8 +29,8 @@ public class MapGenerator {
         
         int[] spawnPositions = generateSpawnPositions();
         branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
-        branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
-        branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+        // branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+        // branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
         branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
     }
 
@@ -127,6 +127,7 @@ public class MapGenerator {
     private static void branchOut(int y, int x, Direction dir, int branchesLeft) {
         if (branchesLeft < 0) return;
 
+        // TODO pak tady dát tu funkci v Map
         boolean isOutOfBounds = y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH;
         if (isOutOfBounds) {
             return;
@@ -186,6 +187,23 @@ public class MapGenerator {
 
 
     public static short[][] getMap() {
-        return curMap;
+        // return new short[][]{
+        //     {1, 0, 0, 0, 0, 0, 0},
+        //     {1, 1, 1, 1, 1, 1, 0},
+        //     {0, 1, 0, 0, 0, 1, 0},
+        //     {0, 1, 0, 1, 0, 1, 0},
+        //     {0, 1, 0, 1, 0, 1, 0},
+        //     {0, 1, 1, 1, 1, 1, 1},
+        //     {0, 0, 0, 0, 0, 1, 1}
+        // };
+
+        short[][] temp = new short[MAP_HEIGHT][MAP_WIDTH];
+        for (int i = 0; i < MAP_HEIGHT; i++) {
+            for (int j = 0; j < MAP_WIDTH; j++) {
+                temp[i][j] = (short) curMap[i][j];
+            }
+        }
+
+        return temp;
     }
 }
