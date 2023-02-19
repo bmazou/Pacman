@@ -7,8 +7,8 @@ public class MapGenerator {
         {0, 0, 0, 0, 0}
     };
 
-    private static final int MAP_WIDTH = 9; 
-    private static final int MAP_HEIGHT = 9;
+    private static final int MAP_WIDTH = 25; 
+    private static final int MAP_HEIGHT = 25;
     private static final float BRANCH_CHANCE = 0.2f;    //TODO Tohle bych mohl generavat náhodně (0.3 - 0.7 ?)
     private static final int MAX_BRANCHES = 6;          //TODO Tohle asi klidně taky
 
@@ -24,13 +24,10 @@ public class MapGenerator {
     private static void generateMap() {
         fillEdges();
 
-        // xBranches.add(11);
-        // branchRandomlyFromWall(Direction.UP, 11);
-        
         int[] spawnPositions = generateSpawnPositions();
         branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
-        // branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
-        // branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+        branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+        branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
         branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
     }
 

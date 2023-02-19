@@ -32,27 +32,10 @@ public class Map {
 
     static {
         convertMap();
+        
         fillPathDict();
-        // Sort pathDict
-
-        System.out.println("PathDict:" + pathDict.size()); 
+        System.out.println("PathDict size:" + pathDict.size()); 
         printMap(MapGenerator.getMap(), null);
-        // System.out.println("Should be RIGHT: " + pathDict.get("0,0,0,1"));
-        // System.out.println("Should be RIGHT: " + pathDict.get("0,0,0,10"));
-        // System.out.println("Should be LEFT: " + pathDict.get("0,10,0,3"));
-        // System.out.println("Should be DOWN: " + pathDict.get("2,0,10,0"));
-
-    }
-
-    public static short[][] copy(short[][] map) {
-        short[][] temp = new short[map.length][map[0].length];
-        for (int i = 0; i < map.length; i++) {
-            for (int j = 0; j < map[0].length; j++) {
-                temp[i][j] = (short) map[i][j];
-            }
-        }
-
-        return temp;
     }
 
 
@@ -60,72 +43,121 @@ public class Map {
         short[][] map = MapGenerator.getMap();
         for (int y = 0; y < map.length; y++) {
             for (int x = 0; x < map[y].length; x++) {
-                for (int targetY = 0; targetY < map.length; targetY++) {
-                    for (int targetX = 0; targetX < map[targetY].length; targetX++) {
-                        if (map[y][x] == 1 && map[targetY][targetX] == 1) {// && y < 4 && targetY < 4 && x < 4 && targetX < 4) {
-                            if (y == targetY && x == targetX) {
-                                pathDict.put(y + "," + x + "," + targetY + "," + targetX, Direction.NONE);
-                                // pathDict.put("" + y + x + targetY + targetX, Direction.NONE);
-                                continue;
-                            }
-                            ArrayList<Direction> path = findPath(y, x, targetY, targetX, Direction.NONE, new ArrayList<>(), MapGenerator.getMap());
-                            
+                for (int targetY = map.length - 1; targetY >= 0; targetY--) {
+                    for (int targetX = map[targetY].length - 1; targetX >= 0; targetX--) {
+                        boolean bothEmptySpace = map[y][x] == 1 && map[targetY][targetX] == 1;
+                        if (!bothEmptySpace) continue;
 
-                            if (path != null && path.size() > 0) {
-                                pathDict.put(y + "," + x + "," + targetY + "," + targetX, path.get(0));
-                                // pathDict.put("" + y + x + targetY + targetX, path.get(0));
-                            }else {
-                                pathDict.put(y + "," + x + "," + targetY + "," + targetX, Direction.NONE);
-                                // pathDict.put("" + y + x + targetY + targetX, Direction.NONE);
-                            }
+                        boolean alreadyInDict = pathDict.containsKey(y + "," + x + "," + targetY + "," + targetX);
+                        if (alreadyInDict) continue;
+
+                        if (y == targetY && x == targetX) {
+                            pathDict.put(y + "," + x + "," + targetY + "," + targetX, Direction.NONE);
+                            continue;
                         }
+                        
+                        Node node = aStarPath(y, x, targetY, targetX);
+                        ArrayList<Direction> path = node.getPath();
+                        insertPath(y, x, targetY, targetX, path);
                     }
                 }
             }
         }
     }
 
-
-    // A function that takes two poisitions in map, and finds the shortest path between them, returning the path as a list of directions, using DFS
-    public static ArrayList<Direction> findPath(int y, int x, int targetY, int TargetX, Direction dir, ArrayList<Direction> path, short[][] map) {
-        if (dir != Direction.NONE)
-            path.add(dir);
-        y += dir.dy();
-        x += dir.dx();
-        if (Map.isOutOfBounds(y, x)) {
-            return null;
-        };
-        if (y == targetY && x == TargetX) {
-            return path;
+    private static void insertPath(int y, int x, int targetY, int targetX, ArrayList<Direction> path) {
+        for (int i = 0; i < path.size(); i++) {
+            Direction dir = path.get(i);
+            pathDict.put(y + "," + x + "," + targetY + "," + targetX, dir);
+            y += dir.dy();
+            x += dir.dx();
         }
+    }
 
-        // 0 is a wall
-        if (map[y][x] == 0) {
-            return null;
-        }
 
-        // 2 is a visited node
-        if (map[y][x] == 2) {
-            return null;
-        }
+    public static int manhD(int y, int x, int targetY, int targetX) {
+        return Math.abs(y - targetY) + Math.abs(x - targetX);
+    }
 
-        map[y][x] = 2;
-
-        int shortestPathLen = Integer.MAX_VALUE;
-        ArrayList<Direction> shortestPath = null;
-        for (Direction nextDir : Direction.directionVals) {  
-            ArrayList<Direction> newPath = findPath(y, x, targetY, TargetX, nextDir, new ArrayList<>(path), copy(map));
-            if (newPath != null && newPath.size() < shortestPathLen) {
-                shortestPathLen = newPath.size();
-                shortestPath = newPath;
+    private static Node getLowestCostNode(ArrayList<Node> open) {
+        Node lowestCostNode = open.get(0);
+        for (Node node : open) {
+            if (node.getFCost() < lowestCostNode.getFCost()) {
+                lowestCostNode = node;
             }
         }
-        
-        return shortestPath;
+
+        return lowestCostNode;
+    }
+
+    private static boolean isInList(int y, int x, ArrayList<Node> list) {
+        for (Node node : list) {
+            if (node.y == y && node.x == x) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static Node getNode(int y, int x, ArrayList<Node> list) {
+        for (Node node : list) {
+            if (node.y == y && node.x == x) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
+    public static Node aStarPath(int startY, int startX, int targetY, int targetX) {
+        short[][] map = Map.getMap();
+        ArrayList<Node> open = new ArrayList<>();
+        ArrayList<Node> closed = new ArrayList<>();
+        Node startNode = new Node(startY, startX, 0, manhD(startY, startX, targetY, targetX), null);
+        open.add(startNode);
+
+        while (true) {
+            if (open.size() == 0) {
+                System.out.println("No path found");
+                return null;
+            }
+
+            Node curNode = getLowestCostNode(open);
+            open.remove(curNode);
+            closed.add(curNode);
+
+            if (curNode.y == targetY && curNode.x == targetX) {
+                return curNode;
+            }
+
+            for (Direction direction : Direction.directionVals) {
+                int newY = curNode.y + direction.dy();
+                int newX = curNode.x + direction.dx();
+
+                if (Map.isOutOfBounds(newY, newX)) continue;
+                if (map[newY][newX] == 0) continue;
+                if (isInList(newY, newX, closed)) continue;
+
+                int gCost = curNode.gCost + 1;
+                // If new path to neigbour is shorter, set neigbour's parent to current node
+                if (isInList(newY, newX, open)) {
+                    Node neigbour = getNode(newY, newX, open);
+                    if (gCost < neigbour.gCost) {
+                        neigbour.parent = curNode;
+                        neigbour.gCost = gCost;
+                    }
+                }else {
+                    Node neigbour = new Node(newY, newX, gCost, manhD(newY, newX, targetY, targetX), curNode);
+                    open.add(neigbour);
+                }
+            }
+        }
     }
 
 
 
+    //* MAP CONVERSION
     public static boolean isOutOfBounds(int y, int x) {
         return y < 0 || y >= getMapHeight() || x < 0 || x >= getMapWidth();
     }
@@ -217,4 +249,58 @@ public class Map {
 
 
     // TODO Dva konstruktory, jeden se seedem, jeden bez
+}
+
+
+
+
+class Node {
+    public int y;
+    public int x;
+    public int gCost;
+    public int hCost;
+    public Node parent;
+
+    public Node(int y, int x, int gCost, int hCost, Node parent) {
+        this.y = y;
+        this.x = x;
+        this.gCost = gCost;
+        this.hCost = hCost;
+        this.parent = parent;
+    }
+
+    public int getFCost() {
+        return gCost + hCost;
+    }
+
+    private Direction getDirection(Node node, Node parent) {
+        if (node.y == parent.y && node.x == parent.x) {
+            return Direction.NONE;
+        }
+
+        if (node.y == parent.y) {
+            if (node.x > parent.x) {
+                return Direction.RIGHT;
+            } else {
+                return Direction.LEFT;
+            }
+        } else {
+            if (node.y > parent.y) {
+                return Direction.DOWN;
+            } else {
+                return Direction.UP;
+            }
+        }
+    }
+
+    public ArrayList<Direction> getPath() {
+        ArrayList<Direction> path = new ArrayList<>();
+        Node node = this;
+        while (node.parent != null) {
+            path.add(0, getDirection(node, node.parent));
+            node = node.parent;
+        }
+
+        return path;
+    }
 }

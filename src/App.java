@@ -21,6 +21,7 @@ public class App extends JPanel implements ActionListener {
     public boolean inGame = false;
     public boolean dying = false;
 
+    public static final int TIMER_DELAY = 6;
     private final short[][] levelData = Map.getMap();
     public static final int BLOCK_SIZE = 36;
     public static final int X_BLOCK_COUNT = Map.getMapWidth();
@@ -39,7 +40,7 @@ public class App extends JPanel implements ActionListener {
     private Timer timer;
     private Pacman pacman;
     private Ghost[] ghosts;
-    private final int GHOST_COUNT = 4;
+    private final int GHOST_COUNT = 1;
     private final int GHOST_SPEED = 3;
     private final int PACMAN_SPEED = 4;
 
@@ -89,7 +90,7 @@ public class App extends JPanel implements ActionListener {
             ghosts[i] = new Ghost(GHOST_SPEED, this, pacman);
         }
 
-        timer = new Timer(25, this);
+        timer = new Timer(TIMER_DELAY, this);
         timer.start();
     }
 
@@ -241,7 +242,6 @@ public class App extends JPanel implements ActionListener {
 
     // controls
     class TAdapter extends KeyAdapter {
-
         @Override
         public void keyPressed(KeyEvent e) {
             int key = e.getKeyCode();
