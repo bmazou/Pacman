@@ -23,6 +23,14 @@ enum Direction {
         return Math.random() < 0.5 ? next() : prev();
     }
 
+    public boolean isPerpendicular(Direction dir) {
+        return this == dir.next() || this == dir.prev();
+    }
+
+    public boolean isParallel(Direction dir) {
+        return this == dir || this == dir.opposite();
+    }
+
     public int dx() {
         switch (this) {
             case LEFT:
@@ -51,11 +59,12 @@ public abstract class GameObject {
     public int x;
     public int y;
     public int speed;
-    public Direction direction;
+    public Direction direction = Direction.NONE;
     public Direction requestedDir = Direction.NONE;
-    protected App game;
+    protected App game;     // Tohle bych odebral a dal potřebný věci jako static
 
-    protected boolean collisionOccured(Direction dir, short tile) {
+    protected boolean collisionOccured(Direction dir) {
+        short tile = getTile();
         boolean leftWallColision = dir == Direction.LEFT && (tile & 1) != 0;
         boolean topWallColision = dir == Direction.UP && (tile & 2) != 0;
         boolean rightWallColision = dir == Direction.RIGHT && (tile & 4) != 0;
@@ -64,43 +73,39 @@ public abstract class GameObject {
         return leftWallColision || topWallColision || rightWallColision || bottomWallColision;
     }
 
-    protected boolean canTurn() {
+    protected boolean atIntersection() {
         return x % App.BLOCK_SIZE == 0 && y % App.BLOCK_SIZE == 0;
     }
 
-    protected int getPosArrI() {    
-        return y / App.BLOCK_SIZE;
+    protected int getPosArrY() {    
+        return (int) y / App.BLOCK_SIZE;
     }
 
-    protected int getPosArrJ() {
-        return x / App.BLOCK_SIZE;
+    protected int getPosArrX() {
+        return (int) x / App.BLOCK_SIZE;
     }
 
     protected short getTile() {
-        return game.screenData[getPosArrI()][getPosArrJ()];
+        return game.screenData[getPosArrY()][getPosArrX()];
     }
 
 
-    protected void changeDirection(short tile) {
-        if (requestedDir == Direction.NONE)
-            return;
-
-        if (collisionOccured(requestedDir, tile)) {
+    protected void changeDirection() {
+        if (collisionOccured(direction) ) {
             direction = Direction.NONE;
             return;
         }
-
+        
+        if (collisionOccured(requestedDir)) {
+            return;
+        }
         direction = requestedDir;
     }
 
-    protected boolean areOppositeDirections(Direction dir1, Direction dir2) {
-        return (dir1 == Direction.UP && dir2 == Direction.DOWN)
-                || (dir1 == Direction.DOWN && dir2 == Direction.UP)
-                || (dir1 == Direction.LEFT && dir2 == Direction.RIGHT)
-                || (dir1 == Direction.RIGHT && dir2 == Direction.LEFT);
-    }
-
     protected void updatePosition() {
+        // if (collisionOccured(direction, getTile()))
+        //     return;
+
         switch (direction) {
             case UP:
                 y -= speed;

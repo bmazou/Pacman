@@ -1,20 +1,19 @@
 public class Ghost extends GameObject {
     private Pacman pacman;
 
-    // ? Semirandomize speed?
     public Ghost(int speed, App game, Pacman pacman) {
         this.speed = speed;
         this.game = game;
         this.pacman = pacman;
+        System.out.println("Ghost speed: " + this.speed);
 
-        randomizeDirection();
+        requestDirection();
     }
 
     public void move() {
-        if (canTurn()) {
-            short tile = getTile();
+        if (atIntersection()) {
             requestDirection();
-            changeDirection(tile);
+            changeDirection();
         }
 
         updatePosition();
@@ -22,15 +21,13 @@ public class Ghost extends GameObject {
     }
 
     private void requestDirection() {
-        int startY = getPosArrI();
-        int startX = getPosArrJ();
-        int targetY = pacman.getPosArrI();
-        int targetX = pacman.getPosArrJ();
+        int startY = getPosArrY();
+        int startX = getPosArrX();
+        int targetY = pacman.getPosArrY();
+        int targetX = pacman.getPosArrX();
 
         requestedDir = Map.pathDict.get(startY + "," + startX + "," + targetY + "," + targetX);
     }
-
-
 
 
     private void checkPacmanCollision() {
@@ -49,54 +46,5 @@ public class Ghost extends GameObject {
         this.x = newX;
         this.y = newY;
         this.direction = Direction.DOWN;
-    }
-
-    private Direction randomizeDirection() {
-        do {
-            int random = (int) (Math.random() * 8);
-            if (random == 0) {
-                return Direction.UP;
-                // requestedDir = Direction.UP;
-            } else if (random == 1) {
-                return Direction.DOWN;
-                // requestedDir = Direction.DOWN;
-            } else if (random == 2) {
-                return Direction.LEFT;
-                // requestedDir = Direction.LEFT;
-            } else if (random == 3) {
-                return Direction.RIGHT;
-                // requestedDir = Direction.RIGHT;
-            } else { // random == 4 || random == 5
-                return getDirectionToPacman();
-                // requestedDir = getDirectionToPacman();
-            }
-
-        } while (collisionOccured(requestedDir, getTile()));
-        // } while (collisionOccured(requestedDir, getTile()) || areOppositeDirections(requestedDir, direction));
-    }
-
-
-    // Function that returns the direction to the pacman
-    private Direction getDirectionToPacman() {
-        int pacX = pacman.x;
-        int pacY = pacman.y;
-
-        int xDiff = pacX - x;
-        int yDiff = pacY - y;
-
-        if (Math.abs(xDiff) > Math.abs(yDiff)) {
-            if (xDiff > 0) {
-                return Direction.RIGHT;
-            } else {
-                return Direction.LEFT;
-            }
-        } else {
-            if (yDiff > 0) {
-                return Direction.DOWN;
-            } else {
-                return Direction.UP;
-            }
-        }
-    }
-    
+    }    
 }

@@ -1,12 +1,6 @@
 import java.util.ArrayList;
 
 public class MapGenerator {
-    private static short[][] ghostSpawn = {
-        {0, 0, 1, 0, 0},
-        {0, 1, 1, 1, 0},
-        {0, 0, 0, 0, 0}
-    };
-
     private static final int MAP_WIDTH = 25; 
     private static final int MAP_HEIGHT = 25;
     private static final float BRANCH_CHANCE = 0.2f;    //TODO Tohle bych mohl generavat náhodně (0.3 - 0.7 ?)
@@ -125,8 +119,7 @@ public class MapGenerator {
         if (branchesLeft < 0) return;
 
         // TODO pak tady dát tu funkci v Map
-        boolean isOutOfBounds = y < 0 || y >= MAP_HEIGHT || x < 0 || x >= MAP_WIDTH;
-        if (isOutOfBounds) {
+        if (Map.isOutOfBounds(y, x)) {
             return;
         }
 
@@ -169,31 +162,16 @@ public class MapGenerator {
         }
     }
 
-    private static void addGhostSpawn() {
-        // Adds ghost spawn to the middle of curMap
-        int x = (MAP_WIDTH - ghostSpawn[0].length) / 2;
-        int y = (MAP_HEIGHT - ghostSpawn.length) / 2;
+    public static int getMapWidth() {
+        return MAP_WIDTH;
+    }
 
-        for (int i = 0; i < ghostSpawn.length; i++) {
-            for (int j = 0; j < ghostSpawn[0].length; j++) {
-                curMap[y + i][x + j] = ghostSpawn[i][j];
-            }
-        }
+    public static int getMapHeight() {
+        return MAP_HEIGHT;
     }
 
 
-
     public static short[][] getMap() {
-        // return new short[][]{
-        //     {1, 0, 0, 0, 0, 0, 0},
-        //     {1, 1, 1, 1, 1, 1, 0},
-        //     {0, 1, 0, 0, 0, 1, 0},
-        //     {0, 1, 0, 1, 0, 1, 0},
-        //     {0, 1, 0, 1, 0, 1, 0},
-        //     {0, 1, 1, 1, 1, 1, 1},
-        //     {0, 0, 0, 0, 0, 1, 1}
-        // };
-
         short[][] temp = new short[MAP_HEIGHT][MAP_WIDTH];
         for (int i = 0; i < MAP_HEIGHT; i++) {
             for (int j = 0; j < MAP_WIDTH; j++) {

@@ -2,40 +2,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Map {
-    public static final short[][] pacmanMap = {
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 
-		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
-		{ 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 }, 
-		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
-		{ 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0 }, 
-		{ 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 }, 
-		{ 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 }, 
-		{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1 }, 
-		{ 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1 }, 
-		{ 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1 }, 
-		{ 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1 }, 
-		{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1 }, 
-		{ 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0 }, 
-		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
-		{ 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0 }, 
-		{ 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0 }, 
-		{ 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0 }, 
-		{ 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0 }, 
-		{ 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0 }, 
-		{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }, 
-		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }  
-	}; 
-
     public static short[][] curMap = MapGenerator.getMap(); // = convertMap(pacmanMap.clone());
     public static HashMap<String, Direction> pathDict = new HashMap<>();
 
 
     static {
         convertMap();
-        
         fillPathDict();
         System.out.println("PathDict size:" + pathDict.size()); 
-        printMap(MapGenerator.getMap(), null);
     }
 
 
@@ -75,6 +49,8 @@ public class Map {
     }
 
 
+
+    //* PATH SEEKING using A* algorithm
     public static int manhD(int y, int x, int targetY, int targetX) {
         return Math.abs(y - targetY) + Math.abs(x - targetX);
     }
@@ -157,7 +133,7 @@ public class Map {
 
 
 
-    //* MAP CONVERSION
+    //* MAP CONVERSION from 1/0 format to actual format for the game
     public static boolean isOutOfBounds(int y, int x) {
         return y < 0 || y >= getMapHeight() || x < 0 || x >= getMapWidth();
     }
@@ -205,10 +181,6 @@ public class Map {
     }
 
     public static void convertMap() {
-        // Takes a map with the following form:
-        // 1 = empty space
-        // 0 = wall
-        
         convert1to16(curMap);
         addBorders(curMap);
     }
@@ -239,11 +211,11 @@ public class Map {
     }
 
     public static int getMapWidth() {
-        return curMap[0].length;
+        return MapGenerator.getMapWidth();
     }
 
     public static int getMapHeight() {
-        return curMap.length;
+        return MapGenerator.getMapHeight();
     }
 
 

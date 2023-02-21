@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -21,7 +22,7 @@ public class App extends JPanel implements ActionListener {
     public boolean inGame = false;
     public boolean dying = false;
 
-    public static final int TIMER_DELAY = 6;
+    public static final int TIMER_DELAY = 15;
     private final short[][] levelData = Map.getMap();
     public static final int BLOCK_SIZE = 36;
     public static final int X_BLOCK_COUNT = Map.getMapWidth();
@@ -35,20 +36,18 @@ public class App extends JPanel implements ActionListener {
     private Image heart, ghost;
     private Image up, down, left, right;
 
-
+    private int[] viableSpeeds = getDivisors(BLOCK_SIZE);
     public short[][] screenData;
     private Timer timer;
     private Pacman pacman;
     private Ghost[] ghosts;
-    private final int GHOST_COUNT = 1;
+    private final int GHOST_COUNT = 4;
     private final int GHOST_SPEED = 3;
     private final int PACMAN_SPEED = 4;
+    private final int PACMAN_X_SPAWN = X_BLOCK_COUNT - 1;
+    private final int PACMAN_Y_SPAWN = 0;
 
     public App() {
-        // Map.printMap(levelData);
-        System.out.println("X_BLOCK_COUNT: " + X_BLOCK_COUNT);
-        System.out.println("Y_BLOCK_COUNT: " + Y_BLOCK_COUNT);
-
         loadImages();
         initVariables();
         addKeyListener(new TAdapter());
@@ -79,10 +78,24 @@ public class App extends JPanel implements ActionListener {
         Image.SCALE_DEFAULT);
     }
 
+    private int[] getDivisors(int n ) {
+        ArrayList<Integer> divisors = new ArrayList<Integer>();
+        for (int i = 1; i <= Math.sqrt(n); i++) {
+            if (n % i == 0) {
+                divisors.add(i);
+                if (n / i != i) {           // If the divisor is not the square root of n
+                    divisors.add(n / i);    // Add the other divisor
+                }
+            }
+        }
+
+        return divisors.stream().mapToInt(i -> i).toArray();
+    }
+
+
     private void initVariables() {
         pacman = new Pacman(PACMAN_SPEED, this);
 
-        // d = new Dimension(BLOCK_SIZE * N_BLOCKS, BLOCK_SIZE * N_BLOCKS);
         screenData = new short[Y_BLOCK_COUNT][X_BLOCK_COUNT];
 
         ghosts = new Ghost[GHOST_COUNT];
@@ -129,7 +142,7 @@ public class App extends JPanel implements ActionListener {
             inGame = false;
         }
 
-        continueLevel();    // Reset starting position
+        respawn();    // Reset starting position
     }
 
     private void moveGhosts(Graphics2D g2d) {
@@ -190,32 +203,29 @@ public class App extends JPanel implements ActionListener {
     }
 
 
-    //TODO Tohle sjednotit s initLevel?
-    private void initGame() {
-        lives = 3;
-        score = 0;
-        initLevel();
-    }
-
-    private void initLevel() {
+    private void resetMap() {
         for (int y = 0; y < Y_BLOCK_COUNT; y++) {
             for (int x = 0; x < X_BLOCK_COUNT; x++) {
                 screenData[y][x] = levelData[y][x];
             }
         }
-
-        continueLevel();
     }
 
-    // Get's called during beginning of game and when pacman loses a life - resets
-    // pacman and ghosts
-    private void continueLevel() {
+    private void initGame() {
+        lives = 3;
+        score = 0;
+        resetMap();
+        respawn();
+    }
+
+    
+    // Get's called during beginning of game and when pacman loses a life: resets pacman and ghosts
+    private void respawn() {
         for (int i = 0; i < ghosts.length; i++) {
             // TODO Tady se zase orientovat podle mapy
             ghosts[i].newGame(0,0);
-            // ghosts[i].newGame( (X_BLOCK_COUNT /2) * BLOCK_SIZE, (Y_BLOCK_COUNT /2) * BLOCK_SIZE);
         }
-        pacman.newGame( (X_BLOCK_COUNT - 1)  * BLOCK_SIZE, (Y_BLOCK_COUNT - 1)* BLOCK_SIZE);
+        pacman.newGame( PACMAN_X_SPAWN * BLOCK_SIZE, PACMAN_Y_SPAWN * BLOCK_SIZE);
         dying = false;
     }
 
