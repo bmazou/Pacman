@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 
 public class MapGenerator {
-    private static final int MAP_WIDTH = 25; 
-    private static final int MAP_HEIGHT = 25;
-    private static final float BRANCH_CHANCE = 0.2f;    //TODO Tohle bych mohl generavat náhodně (0.3 - 0.7 ?)
-    private static final int MAX_BRANCHES = 6;          //TODO Tohle asi klidně taky
+    private static final int MAP_WIDTH = (int) (Math.random() * 20 + 11); 
+    private static final int MAP_HEIGHT = (int) (Math.random() * 15 + 11);
+    private static final float BRANCH_CHANCE = 0.15f;    
+    private static final int MAX_BRANCHES = 2;    
 
     private static ArrayList<Integer> xBranches = new ArrayList<>();
     private static ArrayList<Integer> yBranches = new ArrayList<>();
@@ -17,12 +17,21 @@ public class MapGenerator {
 
     private static void generateMap() {
         fillEdges();
+        System.out.println("Map size: " + MAP_WIDTH + "x" + MAP_HEIGHT);
 
         int[] spawnPositions = generateSpawnPositions();
-        branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
-        branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
-        branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
-        branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
+
+        if (MAP_HEIGHT < MAP_WIDTH) {
+            branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+            branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
+            branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
+            branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+        }else {
+            branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
+            branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+            branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+            branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
+        }
     }
 
     private static void fillEdges() {
@@ -49,6 +58,7 @@ public class MapGenerator {
         int randXPos = (int) (Math.random() * (MAP_WIDTH-4) + 2);   // Generates a random number between 2 and MAP_WIDTH - 2
         positions[0] = randXPos;
         xBranches.add(randXPos);
+        
         do {
             randXPos = (int) (Math.random() * (MAP_WIDTH-4) + 2);
         } while (neigboursXBranches(randXPos));
@@ -60,6 +70,7 @@ public class MapGenerator {
         int randYPos = (int) (Math.random() * (MAP_HEIGHT-4) + 2);   // Generates a random number between 2 and MAP_HEIGHT - 2
         positions[2] = randYPos;
         yBranches.add(randYPos);
+
         do {
             randYPos = (int) (Math.random() * (MAP_HEIGHT-4) + 2);
         } while (neigboursYBranches(randYPos));
@@ -87,15 +98,12 @@ public class MapGenerator {
             default:
                 break;
         }
-
-        System.out.println("Branching from wall at " + spawnPos + ", in direction: " + dir.opposite());
     }
 
 
     private static boolean shouldBranch() {
         return Math.random() < BRANCH_CHANCE;
     }
-
 
     private static boolean neigboursXBranches(int x) {
         return xBranches.contains(x) || xBranches.contains(x - 1) || xBranches.contains(x + 1);

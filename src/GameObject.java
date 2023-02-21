@@ -103,9 +103,6 @@ public abstract class GameObject {
     }
 
     protected void updatePosition() {
-        // if (collisionOccured(direction, getTile()))
-        //     return;
-
         switch (direction) {
             case UP:
                 y -= speed;
@@ -124,4 +121,7 @@ public abstract class GameObject {
         }
     }
 
+    public abstract void move();
+    public abstract void newGame();
+    protected abstract void randomizeStartingPosition();
 }

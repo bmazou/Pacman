@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class App extends JPanel implements ActionListener {
-    private final Font smallFont = new Font("Arial", Font.BOLD, 14);
+    private final Font smallFont = new Font("Arial", Font.BOLD, BLOCK_SIZE);
     public boolean inGame = false;
     public boolean dying = false;
 
@@ -36,16 +36,14 @@ public class App extends JPanel implements ActionListener {
     private Image heart, ghost;
     private Image up, down, left, right;
 
-    private int[] viableSpeeds = getDivisors(BLOCK_SIZE);
+    public static int[] viableSpeeds = getDivisors(BLOCK_SIZE);
     public short[][] screenData;
     private Timer timer;
     private Pacman pacman;
     private Ghost[] ghosts;
-    private final int GHOST_COUNT = 4;
+    private int GHOST_COUNT;
     private final int GHOST_SPEED = 3;
     private final int PACMAN_SPEED = 4;
-    private final int PACMAN_X_SPAWN = X_BLOCK_COUNT - 1;
-    private final int PACMAN_Y_SPAWN = 0;
 
     public App() {
         loadImages();
@@ -54,7 +52,17 @@ public class App extends JPanel implements ActionListener {
         setFocusable(true);
         initGame();
 
+        System.out.println("Ghost count: " + GHOST_COUNT);
+        
         // TODO: Add win condition
+    }
+
+    private void setGhostCount() {
+        int numOfBlocks = X_BLOCK_COUNT * Y_BLOCK_COUNT;
+
+        // Set GHOST_COUNT to the number of blocks ** 3
+        GHOST_COUNT = (int) Math.pow(numOfBlocks, 0.30) - 1;
+    
     }
 
     private void loadImages() {
@@ -78,7 +86,7 @@ public class App extends JPanel implements ActionListener {
         Image.SCALE_DEFAULT);
     }
 
-    private int[] getDivisors(int n ) {
+    private static int[] getDivisors(int n ) {
         ArrayList<Integer> divisors = new ArrayList<Integer>();
         for (int i = 1; i <= Math.sqrt(n); i++) {
             if (n % i == 0) {
@@ -89,11 +97,15 @@ public class App extends JPanel implements ActionListener {
             }
         }
 
+        // Sort the divisors in ascending order and return them as an array
+        divisors.sort(null);
         return divisors.stream().mapToInt(i -> i).toArray();
     }
 
 
     private void initVariables() {
+        setGhostCount();
+
         pacman = new Pacman(PACMAN_SPEED, this);
 
         screenData = new short[Y_BLOCK_COUNT][X_BLOCK_COUNT];
@@ -121,7 +133,7 @@ public class App extends JPanel implements ActionListener {
     private void showIntroScreen(Graphics2D g2d) {
         String start = "Press SPACE to start";
         g2d.setColor(Color.yellow);
-        g2d.drawString(start, SCREEN_WIDTH / X_BLOCK_COUNT, 150);
+        g2d.drawString(start, X_BLOCK_COUNT*BLOCK_SIZE/4, Y_BLOCK_COUNT*BLOCK_SIZE/2);
     }
 
     private void drawScore(Graphics2D g) {
@@ -173,30 +185,59 @@ public class App extends JPanel implements ActionListener {
     }
 
 
-    private void drawMaze2(Graphics2D g2d) {
+    private void drawMaze(Graphics2D g2d) {
         for (int y = 0; y < Y_BLOCK_COUNT; y++) {
             for (int x = 0; x < X_BLOCK_COUNT; x++) {
                 g2d.setColor(new Color(0, 72, 251));
                 g2d.setStroke(new BasicStroke(5));
 
-                if ((levelData[y][x] == 0)) {  // Draw a wall
-                    g2d.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                boolean isWall = levelData[y][x] == 0;
+                if ((isWall)) {  
+                    boolean neigboursTopWall = y > 0 && levelData[y - 1][x] == 0;
+                    if (!neigboursTopWall) {
+                        g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE);
+                    }
+
+                    boolean neigboursBottomWall = y < Y_BLOCK_COUNT - 1 && levelData[y + 1][x] == 0;
+                    if (!neigboursBottomWall) {
+                        g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 1, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                    }
+
+                    boolean neigboursLeftWall = x > 0 && levelData[y][x - 1] == 0;
+                    if (!neigboursLeftWall) {
+                        g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                    }
+
+                    boolean neigboursRightWall = x < X_BLOCK_COUNT - 1 && levelData[y][x + 1] == 0;
+                    if (!neigboursRightWall) {
+                        g2d.drawLine(x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                    }
                 }
-                if ((screenData[y][x] & 1 ) != 0) {  // Draw a left border
+
+                boolean hasWallOnLeft = (screenData[y][x] & 1) != 0;; 
+                if (hasWallOnLeft) {  // Draw a left border
                     g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 1);
                 }
-                if ((screenData[y][x] & 2) != 0) {  // Draw a top border
+
+                boolean hasWallOnTop = (screenData[y][x] & 2) != 0;
+                if (hasWallOnTop) {  // Draw a top border
                     g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE);
                 }
-                if ((screenData[y][x] & 4) != 0) {  // Draw a right border
+
+                boolean hasWallOnRight = (screenData[y][x] & 4) != 0;
+                if (hasWallOnRight) {  // Draw a right border
                     g2d.drawLine(x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE + BLOCK_SIZE - 1);
                 }
-                if ((screenData[y][x] & 8) != 0) {  // Draw a bottom border
-                    g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 1, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+
+                boolean hasWallOnBottom = (screenData[y][x] & 8) != 0;
+                if (hasWallOnBottom) {  // Draw a bottom border
+                    g2d.drawLine(x*BLOCK_SIZE, y*BLOCK_SIZE + BLOCK_SIZE - 1, x*BLOCK_SIZE + BLOCK_SIZE - 1, y*BLOCK_SIZE + BLOCK_SIZE - 1);
                 }
-                if ((screenData[y][x] & 16) != 0) {
+
+                boolean hasFood = (screenData[y][x] & 16) != 0;
+                if (hasFood) {
                     g2d.setColor(new Color(255, 255, 255));
-                    g2d.fillOval(x * BLOCK_SIZE + 10, y * BLOCK_SIZE + 10, BLOCK_SIZE / 4, BLOCK_SIZE / 4);
+                    g2d.fillOval(x*BLOCK_SIZE + (int)(BLOCK_SIZE*0.375) , y * BLOCK_SIZE + (int)(BLOCK_SIZE*0.375), BLOCK_SIZE/4, BLOCK_SIZE/4);
                 }
             }
         }
@@ -221,11 +262,10 @@ public class App extends JPanel implements ActionListener {
     
     // Get's called during beginning of game and when pacman loses a life: resets pacman and ghosts
     private void respawn() {
+        pacman.newGame();
         for (int i = 0; i < ghosts.length; i++) {
-            // TODO Tady se zase orientovat podle mapy
-            ghosts[i].newGame(0,0);
+            ghosts[i].newGame();
         }
-        pacman.newGame( PACMAN_X_SPAWN * BLOCK_SIZE, PACMAN_Y_SPAWN * BLOCK_SIZE);
         dying = false;
     }
 
@@ -237,7 +277,7 @@ public class App extends JPanel implements ActionListener {
         g2d.setColor(Color.black);
         g2d.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        drawMaze2(g2d);
+        drawMaze(g2d);
         drawScore(g2d);
 
         if (inGame) {
