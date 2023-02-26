@@ -1,13 +1,20 @@
 public class Pacman extends GameObject {
-    public boolean dying = false;
-
-    public Pacman(int speed, Game game) {
+    public Pacman(int speed) {
+        /**
+         * Constructor asigning speed
+         * 
+         * @param speed The speed of the pacman
+         */
         this.speed = speed;
-        this.game = game;
     }
 
     @Override
     public void move() {
+        /**
+         * Moves the pacman
+         * <p>
+         * If the pacman is at an intersection, can eat food and change direction
+         */
         if (atIntersection()) {
             checkFoodCollision();
             changeDirection();
@@ -16,6 +23,11 @@ public class Pacman extends GameObject {
     }
     
     private void checkFoodCollision() {
+        /**
+         * Check if the pacman is on food
+         * <p>
+         * If the current tile is food (tile & 16 != 0), eat the food and increase the score
+         */
         int posY = getPosArrY();
         int posX = getPosArrX();
         short tile = getTile();
@@ -26,19 +38,33 @@ public class Pacman extends GameObject {
     }
 
     public void requestDirection(Direction dir) {
+        /**
+         * Request a new direction
+         * <p>
+         * The requested direction will be asigned when the pacman goes on an intersection
+         * 
+         * @param dir The requested direction
+         */
         requestedDir = dir;
     }
 
     @Override
     public void newGame() {
+        /**
+         * Reset pacman's state and randomize starting position
+         */
         randomizeStartingPosition();
         direction = Direction.NONE;
         requestedDir = Direction.NONE;
-        dying = false;
     }
 
     @Override
     protected void randomizeStartingPosition() {
+        /**
+         * Randomize the starting position of the pacman
+         * <p>
+         * The starting position is a random position on the map that is not a wall
+         */
         short[][] map = MapGenerator.getMap();
         int tempY, tempX;
 
