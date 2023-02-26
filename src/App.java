@@ -51,40 +51,25 @@ public class App extends JPanel implements ActionListener {
         addKeyListener(new TAdapter());
         setFocusable(true);
         initGame();
-
-        System.out.println("Ghost count: " + GHOST_COUNT);
-        
     }
 
+    private void initGame() {
+        lives = 3;
+        score = 0;
+        resetMap();
+        Map.printMap(levelData, "Printing levelData");
+        foodCount = Map.getFoodCount();
+        System.out.println("Food count: " + foodCount);
+        respawn();
+    }
 
     private void setGhostCount() {
         int numOfBlocks = X_BLOCK_COUNT * Y_BLOCK_COUNT;
 
         // GHOST_COUNT = (int) Math.pow(numOfBlocks, 0.30) - 1;
         GHOST_COUNT = 0;
-
     }
 
-    private void loadImages() {
-        down = new ImageIcon(getClass().getResource("./images/down.gif")).getImage();
-        up = new ImageIcon(getClass().getResource("./images/up.gif")).getImage();
-        left = new ImageIcon(getClass().getResource("./images/left.gif")).getImage();
-        right = new ImageIcon(getClass().getResource("./images/right.gif")).getImage();
-        ghost = new ImageIcon(getClass().getResource("./images/ghost.gif")).getImage();
-        heart = new ImageIcon(getClass().getResource("./images/heart.png")).getImage();
-
-        // Resize the images to fit the block size
-        down = down.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
-        Image.SCALE_DEFAULT);
-        up = up.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
-        Image.SCALE_DEFAULT);
-        left = left.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
-        Image.SCALE_DEFAULT);
-        right = right.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
-        Image.SCALE_DEFAULT);
-        ghost = ghost.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
-        Image.SCALE_DEFAULT);
-    }
 
     private static int[] getDivisors(int n ) {
         ArrayList<Integer> divisors = new ArrayList<Integer>();
@@ -119,6 +104,15 @@ public class App extends JPanel implements ActionListener {
         timer.start();
     }
 
+    // Get's called during beginning of game or when pacman loses a life: resets pacman and ghosts
+    private void respawn() {
+        pacman.newGame();
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i].newGame();
+        }
+        dying = false;
+    }
+
     private void playGame(Graphics2D g2d) {
         if (score == foodCount) {
             gameWon = true;
@@ -133,6 +127,81 @@ public class App extends JPanel implements ActionListener {
             drawPacman(g2d);
             moveGhosts(g2d);
         }
+    }
+
+
+    private void death() {
+        lives--;
+
+        if (lives == 0) {
+            inGame = false;
+        }
+
+        respawn();    // Reset starting position
+    }
+
+    private void moveGhosts(Graphics2D g2d) {
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i].move();
+            drawGhost(g2d, ghosts[i].x, ghosts[i].y);
+        }
+    }
+
+
+    private void resetMap() {
+        for (int y = 0; y < Y_BLOCK_COUNT; y++) {
+            for (int x = 0; x < X_BLOCK_COUNT; x++) {
+                screenData[y][x] = levelData[y][x];
+            }
+        }
+    }
+
+
+    private void loadImages() {
+        down = new ImageIcon(getClass().getResource("./images/down.gif")).getImage();
+        up = new ImageIcon(getClass().getResource("./images/up.gif")).getImage();
+        left = new ImageIcon(getClass().getResource("./images/left.gif")).getImage();
+        right = new ImageIcon(getClass().getResource("./images/right.gif")).getImage();
+        ghost = new ImageIcon(getClass().getResource("./images/ghost.gif")).getImage();
+        heart = new ImageIcon(getClass().getResource("./images/heart.png")).getImage();
+
+        // Resize the images to fit the block size
+        down = down.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        up = up.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        left = left.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        right = right.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        ghost = ghost.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+    }
+
+
+    //* ------------------ Drawing methods ------------------ *//
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setColor(Color.black);
+        g2d.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        drawMaze(g2d);
+        drawScore(g2d);
+
+        if (inGame) {
+            playGame(g2d);
+        } else {
+            if (gameWon)
+                showWinScreen(g2d);
+            else
+                showIntroScreen(g2d);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+        g2d.dispose();
     }
 
     private void showWinScreen(Graphics2D g2d) {
@@ -159,22 +228,6 @@ public class App extends JPanel implements ActionListener {
         }
     }
 
-    private void death() {
-        lives--;
-
-        if (lives == 0) {
-            inGame = false;
-        }
-
-        respawn();    // Reset starting position
-    }
-
-    private void moveGhosts(Graphics2D g2d) {
-        for (int i = 0; i < ghosts.length; i++) {
-            ghosts[i].move();
-            drawGhost(g2d, ghosts[i].x, ghosts[i].y);
-        }
-    }
 
     private void drawGhost(Graphics2D g2d, int x, int y) {
         g2d.drawImage(ghost, x, y, this);
@@ -254,61 +307,10 @@ public class App extends JPanel implements ActionListener {
             }
         }
     }
-
-
-    private void resetMap() {
-        for (int y = 0; y < Y_BLOCK_COUNT; y++) {
-            for (int x = 0; x < X_BLOCK_COUNT; x++) {
-                screenData[y][x] = levelData[y][x];
-            }
-        }
-    }
-
-    private void initGame() {
-        lives = 3;
-        score = 0;
-        resetMap();
-        Map.printMap(levelData, "Printing levelData");
-        foodCount = Map.getFoodCount();
-        System.out.println("Food count: " + foodCount);
-        respawn();
-    }
-
     
-    // Get's called during beginning of game or when pacman loses a life: resets pacman and ghosts
-    private void respawn() {
-        pacman.newGame();
-        for (int i = 0; i < ghosts.length; i++) {
-            ghosts[i].newGame();
-        }
-        dying = false;
-    }
 
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
 
-        Graphics2D g2d = (Graphics2D) g;
-
-        g2d.setColor(Color.black);
-        g2d.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-        drawMaze(g2d);
-        drawScore(g2d);
-
-        if (inGame) {
-            playGame(g2d);
-        } else {
-            if (gameWon)
-                showWinScreen(g2d);
-            else
-                showIntroScreen(g2d);
-        }
-
-        Toolkit.getDefaultToolkit().sync();
-        g2d.dispose();
-    }
-
-    // controls
+    //* -------------------------- KeyAdapter -------------------------- *//
     class TAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
