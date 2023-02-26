@@ -2,16 +2,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Map {
-    public static short[][] curMap = MapGenerator.getMap(); // = convertMap(pacmanMap.clone());
-    public static HashMap<String, Direction> pathDict = new HashMap<>();
+    public static short[][] curMap;
+    public static HashMap<String, Direction> pathDict;
 
-
-    static {
+    
+    public static void generateMap() {
+        MapGenerator.generateMap();
+        curMap = MapGenerator.getMap();
         convertMap();
-        fillPathDict();
-        System.out.println("PathDict size:" + pathDict.size()); 
-    }
 
+        pathDict = new HashMap<>();
+        fillPathDict();
+    }   
 
     public static void fillPathDict() {
         short[][] map = MapGenerator.getMap();

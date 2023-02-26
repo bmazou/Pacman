@@ -61,7 +61,7 @@ public abstract class GameObject {
     public int speed;
     public Direction direction = Direction.NONE;
     public Direction requestedDir = Direction.NONE;
-    protected App game;     // Tohle bych odebral a dal potřebný věci jako static
+    protected Game game;     // Tohle bych odebral a dal potřebný věci jako static
 
     protected boolean collisionOccured(Direction dir) {
         short tile = getTile();
@@ -74,19 +74,19 @@ public abstract class GameObject {
     }
 
     protected boolean atIntersection() {
-        return x % App.BLOCK_SIZE == 0 && y % App.BLOCK_SIZE == 0;
+        return x % Game.BLOCK_SIZE == 0 && y % Game.BLOCK_SIZE == 0;
     }
 
     protected int getPosArrY() {    
-        return (int) y / App.BLOCK_SIZE;
+        return (int) y / Game.BLOCK_SIZE;
     }
 
     protected int getPosArrX() {
-        return (int) x / App.BLOCK_SIZE;
+        return (int) x / Game.BLOCK_SIZE;
     }
 
     protected short getTile() {
-        return game.screenData[getPosArrY()][getPosArrX()];
+        return Game.screenData[getPosArrY()][getPosArrX()];
     }
 
 

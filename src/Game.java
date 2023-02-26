@@ -1,19 +1,374 @@
 // package pacman;
 
-import javax.swing.JFrame;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
-public class Game extends JFrame {
-	public Game() {
-		add(new App());
-	}
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
-	public static void main(String[] args) {
-		Game pac = new Game();
-		pac.setVisible(true);
-		pac.setTitle("Pacman");
-		pac.setSize(App.SCREEN_WIDTH + 20, App.SCREEN_HEIGHT + 80);
-		pac.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		pac.setLocationRelativeTo(null);
-	}
+public class Game extends JPanel implements ActionListener {
+    public static boolean inGame = false;
+    public static boolean dying = false;
+    public static boolean gameWon = false;
 
+    public static final int TIMER_DELAY = 30;
+    private short[][] levelData;
+    public static final int BLOCK_SIZE = 36;
+    public static int X_BLOCK_COUNT;
+    public static int Y_BLOCK_COUNT;
+    private Font smallFont = new Font("Helvetica", Font.BOLD, 20);
+    private Font introScreenFont;
+    public static int SCREEN_WIDTH;
+    public static int SCREEN_HEIGHT;
+    public static int lives, score;
+    public int foodCount;
+    
+    private Image heart, ghost;
+    private Image up, down, left, right;
+
+    public static int[] viableSpeeds = getViableSpeeds(BLOCK_SIZE);
+    public static short[][] screenData;
+    private Timer timer;
+    private Pacman pacman;
+    private Ghost[] ghosts;
+    private int GHOST_COUNT;
+    private final int GHOST_SPEED = 3;
+    private final int PACMAN_SPEED = 4;
+
+    private App app;
+    private boolean mapPregenerated = true;
+
+    public Game(App app) {
+        this.app = app;
+        loadImages();
+        addKeyListener(new TAdapter());
+        setFocusable(true);
+        initGame();     
+    }
+    
+    private void initGame() {
+        initVariables();
+
+        resetMap();
+        foodCount = Map.getFoodCount();
+        System.out.println("Food count: " + foodCount);
+        respawn();
+    }
+
+    private void initVariables() {
+        generateNewMap();
+        setGhostCount();
+        resetGameState();
+
+        pacman = new Pacman(PACMAN_SPEED, this);
+
+        screenData = new short[Y_BLOCK_COUNT][X_BLOCK_COUNT];
+
+        ghosts = new Ghost[GHOST_COUNT];
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i] = new Ghost(GHOST_SPEED, this, pacman, i);
+        }
+
+        timer = new Timer(TIMER_DELAY, this);
+        timer.start();
+    }
+
+    private void resetGameState() {
+        dying = false;
+        gameWon = false;
+        lives = 3;
+        score = 0;
+    }
+
+    private void generateNewMap() {
+        Map.generateMap();
+        levelData = Map.getMap();
+        foodCount = Map.getFoodCount();
+
+        X_BLOCK_COUNT = Map.getMapWidth();
+        Y_BLOCK_COUNT = Map.getMapHeight();
+        SCREEN_HEIGHT = Y_BLOCK_COUNT * BLOCK_SIZE;
+        SCREEN_WIDTH = X_BLOCK_COUNT * BLOCK_SIZE;
+
+        app.setSize(Game.SCREEN_WIDTH + 20, Game.SCREEN_HEIGHT + 100);
+
+        introScreenFont = new Font("Arial", Font.BOLD, BLOCK_SIZE*X_BLOCK_COUNT/10);
+    }
+
+    private void setGhostCount() {
+        int numOfBlocks = X_BLOCK_COUNT * Y_BLOCK_COUNT;
+
+        GHOST_COUNT = (int) Math.pow(numOfBlocks, 0.30) - 1;
+        // GHOST_COUNT = 0;
+    }
+
+
+    private static int[] getViableSpeeds(int n ) {
+        ArrayList<Integer> divisors = new ArrayList<Integer>();
+        for (int i = 1; i <= Math.sqrt(n); i++) {
+            if (n % i == 0) {
+                divisors.add(i);
+                if (n / i != i) {           // If the divisor is not the square root of n
+                    divisors.add(n / i);    // Add the other divisor
+                }
+            }
+        }
+
+        // Sort the divisors in ascending order and return them as an array
+        divisors.sort(null);
+        return divisors.stream().mapToInt(i -> i).toArray();
+    }
+
+
+    // Get's called during beginning of game or when pacman loses a life: resets pacman and ghosts
+    private void respawn() {
+        pacman.newGame();
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i].newGame();
+        }
+        dying = false;
+    }
+
+    private void playGame(Graphics2D g2d) {
+        if (score == foodCount) {
+            gameWon = true;
+            inGame = false;
+            return;
+        }
+
+        if (dying) {
+            death();
+        }
+        else {
+            pacman.move();
+            drawPacman(g2d);
+            moveGhosts(g2d);
+        }
+    }
+
+    private void death() {
+        lives--;
+
+        if (lives == 0) {
+            inGame = false;
+        }
+
+        respawn();    // Reset starting position
+    }
+
+    private void moveGhosts(Graphics2D g2d) {
+        for (int i = 0; i < ghosts.length; i++) {
+            ghosts[i].move();
+            drawGhost(g2d, ghosts[i].x, ghosts[i].y);
+        }
+    }
+
+
+    private void resetMap() {
+        for (int y = 0; y < Y_BLOCK_COUNT; y++) {
+            for (int x = 0; x < X_BLOCK_COUNT; x++) {
+                screenData[y][x] = levelData[y][x];
+            }
+        }
+    }
+
+
+    private void loadImages() {
+        down = new ImageIcon(getClass().getResource("./images/down.gif")).getImage();
+        up = new ImageIcon(getClass().getResource("./images/up.gif")).getImage();
+        left = new ImageIcon(getClass().getResource("./images/left.gif")).getImage();
+        right = new ImageIcon(getClass().getResource("./images/right.gif")).getImage();
+        ghost = new ImageIcon(getClass().getResource("./images/ghost.gif")).getImage();
+        heart = new ImageIcon(getClass().getResource("./images/heart.png")).getImage();
+
+        // Resize the images to fit the block size
+        down = down.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        up = up.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        left = left.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        right = right.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+        ghost = ghost.getScaledInstance(BLOCK_SIZE - 5, BLOCK_SIZE - 5,
+        Image.SCALE_DEFAULT);
+    }
+
+
+    //* ------------------ Drawing methods ------------------ *//
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setColor(Color.black);
+        g2d.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        drawMaze(g2d);
+        drawScore(g2d);
+
+        if (inGame) {
+            playGame(g2d);
+        } else {
+            if (gameWon)
+                showWinScreen(g2d);
+            else
+                showIntroScreen(g2d);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+        g2d.dispose();
+    }
+
+    private void showWinScreen(Graphics2D g2d) {
+        String win = "You win!";
+        g2d.setColor(Color.yellow);
+        g2d.drawString(win, X_BLOCK_COUNT*BLOCK_SIZE/4, Y_BLOCK_COUNT*BLOCK_SIZE/2 - smallFont.getSize());
+        showIntroScreen(g2d);
+    }
+
+    private void showIntroScreen(Graphics2D g2d) {
+        g2d.setFont(introScreenFont);
+        String start = "Press SPACE to start";
+        g2d.setColor(Color.yellow);
+        g2d.drawString(start, 0, Y_BLOCK_COUNT*BLOCK_SIZE/2);
+    }
+
+    private void drawScore(Graphics2D g) {
+        g.setFont(smallFont);
+        g.setColor(new Color(5, 181, 79));
+        String s = "Score: " + score;
+        g.drawString(s, 8, SCREEN_HEIGHT + BLOCK_SIZE/2);
+
+        for (int i = 0; i < lives; i++) {
+            g.drawImage(heart, i * 28 + 8, SCREEN_HEIGHT + BLOCK_SIZE/2 + smallFont.getSize(), this);
+        }
+    }
+
+
+    private void drawGhost(Graphics2D g2d, int x, int y) {
+        g2d.drawImage(ghost, x, y, this);
+    }
+
+    private void drawPacman(Graphics2D g2d) {
+        Direction dir = pacman.direction;
+        int pac_x = pacman.x;
+        int pac_y = pacman.y;
+
+        if (dir == Direction.LEFT) {
+            g2d.drawImage(left, pac_x + 1, pac_y + 1, this);
+        } else if (dir == Direction.RIGHT) {
+            g2d.drawImage(right, pac_x + 1, pac_y + 1, this);
+        } else if (dir == Direction.UP) {
+            g2d.drawImage(up, pac_x + 1, pac_y + 1, this);
+        } else {
+            g2d.drawImage(down, pac_x + 1, pac_y + 1, this);
+        }
+    }
+
+
+    private void drawMaze(Graphics2D g2d) {
+        for (int y = 0; y < Y_BLOCK_COUNT; y++) {
+            for (int x = 0; x < X_BLOCK_COUNT; x++) {
+                g2d.setColor(new Color(0, 72, 251));
+                g2d.setStroke(new BasicStroke(5));
+
+                boolean isWall = levelData[y][x] == 0;
+                if ((isWall)) {  
+                    boolean neigboursTopWall = y > 0 && levelData[y - 1][x] == 0;
+                    if (!neigboursTopWall) {
+                        g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE);
+                    }
+
+                    boolean neigboursBottomWall = y < Y_BLOCK_COUNT - 1 && levelData[y + 1][x] == 0;
+                    if (!neigboursBottomWall) {
+                        g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 1, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                    }
+
+                    boolean neigboursLeftWall = x > 0 && levelData[y][x - 1] == 0;
+                    if (!neigboursLeftWall) {
+                        g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                    }
+
+                    boolean neigboursRightWall = x < X_BLOCK_COUNT - 1 && levelData[y][x + 1] == 0;
+                    if (!neigboursRightWall) {
+                        g2d.drawLine(x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                    }
+                }
+
+                boolean hasWallOnLeft = (screenData[y][x] & 1) != 0;; 
+                if (hasWallOnLeft) {  // Draw a left border
+                    g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                }
+
+                boolean hasWallOnTop = (screenData[y][x] & 2) != 0;
+                if (hasWallOnTop) {  // Draw a top border
+                    g2d.drawLine(x * BLOCK_SIZE, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE);
+                }
+
+                boolean hasWallOnRight = (screenData[y][x] & 4) != 0;
+                if (hasWallOnRight) {  // Draw a right border
+                    g2d.drawLine(x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE, x * BLOCK_SIZE + BLOCK_SIZE - 1, y * BLOCK_SIZE + BLOCK_SIZE - 1);
+                }
+
+                boolean hasWallOnBottom = (screenData[y][x] & 8) != 0;
+                if (hasWallOnBottom) {  // Draw a bottom border
+                    g2d.drawLine(x*BLOCK_SIZE, y*BLOCK_SIZE + BLOCK_SIZE - 1, x*BLOCK_SIZE + BLOCK_SIZE - 1, y*BLOCK_SIZE + BLOCK_SIZE - 1);
+                }
+
+                boolean hasFood = (screenData[y][x] & 16) != 0;
+                if (hasFood) {
+                    g2d.setColor(new Color(255, 255, 255));
+                    g2d.fillOval(x*BLOCK_SIZE + (int)(BLOCK_SIZE*0.375) , y * BLOCK_SIZE + (int)(BLOCK_SIZE*0.375), BLOCK_SIZE/4, BLOCK_SIZE/4);
+                }
+            }
+        }
+    }
+    
+
+
+    //* -------------------------- KeyAdapter -------------------------- *//
+    class TAdapter extends KeyAdapter {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            int key = e.getKeyCode();
+
+            if (inGame) {
+                if (key == KeyEvent.VK_LEFT) {
+                    pacman.requestDirection(Direction.LEFT);
+                } else if (key == KeyEvent.VK_RIGHT) {
+                    pacman.requestDirection(Direction.RIGHT);
+                } else if (key == KeyEvent.VK_UP) {
+                    pacman.requestDirection(Direction.UP);
+                } else if (key == KeyEvent.VK_DOWN) {
+                    pacman.requestDirection(Direction.DOWN);
+                } else if (key == KeyEvent.VK_ESCAPE && timer.isRunning()) {
+                    inGame = false;
+                }
+            } else {
+                if (key == KeyEvent.VK_SPACE) {
+                    inGame = true;
+                    if (!mapPregenerated) initGame();
+
+                    mapPregenerated = false;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        repaint();
+    }
 }

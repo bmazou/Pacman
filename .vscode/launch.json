@@ -6,9 +6,23 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch App",
+            "request": "launch",
+            "mainClass": "App",
+            "projectName": "Pacman_7a24b49a"
+        },
+        {
+            "type": "java",
             "name": "Launch Game",
             "request": "launch",
             "mainClass": "Game",
+            "projectName": "Pacman_7a24b49a"
+        },
+        {
+            "type": "java",
+            "name": "Launch Appp",
+            "request": "launch",
+            "mainClass": "Appp",
             "projectName": "Pacman_7a24b49a"
         },
         {

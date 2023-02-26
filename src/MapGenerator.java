@@ -1,42 +1,46 @@
 import java.util.ArrayList;
 
 public class MapGenerator {
-    // private static final int MAP_WIDTH = (int) (Math.random() * 20 + 11); 
-    // private static final int MAP_HEIGHT = (int) (Math.random() * 15 + 11);
-    private static final int MAP_WIDTH = 4;
-    private static final int MAP_HEIGHT = 4;
+    // TODO Tady to nedávat final, a randomalizovat v generate map
+    private static int MAP_WIDTH; 
+    private static int MAP_HEIGHT;
+    // private static final int MAP_WIDTH = 7;
+    // private static final int MAP_HEIGHT = 7;
     private static final float BRANCH_CHANCE = 0.15f;    
     private static final int MAX_BRANCHES = 2;    
 
-    private static ArrayList<Integer> xBranches = new ArrayList<>();
-    private static ArrayList<Integer> yBranches = new ArrayList<>();
+    private static ArrayList<Integer> xBranches;
+    private static ArrayList<Integer> yBranches;
 
-    private static short[][] curMap = new short[MAP_HEIGHT][MAP_WIDTH];
+    private static short[][] curMap;
 
-    static {
-        generateMap();
-    }
+    // static {
+    //     generateMap();
+    // }
 
-    private static void generateMap() {
+    public static void generateMap() {
+        MAP_WIDTH = (int) (Math.random() * 15 + 11);
+        MAP_HEIGHT = (int) (Math.random() * 10 + 11);
+        xBranches = new ArrayList<>();
+        yBranches = new ArrayList<>();
+        curMap = new short[MAP_HEIGHT][MAP_WIDTH];
+
         fillEdges();
-        System.out.println("Map size: " + MAP_WIDTH + "x" + MAP_HEIGHT);
-
-        branchRandomlyFromWall(Direction.LEFT, 2);
-        return;
+        System.out.println("Map size: " + MAP_WIDTH + "x" + MAP_HEIGHT + "\n");
         
-        // int[] spawnPositions = generateSpawnPositions();
+        int[] spawnPositions = generateSpawnPositions();
 
-        // if (MAP_HEIGHT < MAP_WIDTH) {
-        //     branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
-        //     branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
-        //     branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
-        //     branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
-        // }else {
-        //     branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
-        //     branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
-        //     branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
-        //     branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
-        // }
+        if (MAP_HEIGHT < MAP_WIDTH) {
+            branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+            branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
+            branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
+            branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+        }else {
+            branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
+            branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+            branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+            branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
+        }
     }
 
     private static void fillEdges() {
@@ -131,12 +135,9 @@ public class MapGenerator {
     private static void branchOut(int y, int x, Direction dir, int branchesLeft) {
         if (branchesLeft < 0) return;
 
-        // TODO pak tady dát tu funkci v Map
         if (Map.isOutOfBounds(y, x)) {
             return;
         }
-
-        // System.out.println("Branching out from " + x + ", " + y + " in direction: " + dir + " with " + branchesLeft + " branches left");
 
         curMap[y][x] = 1;
 
@@ -175,6 +176,8 @@ public class MapGenerator {
         }
     }
 
+
+    //* ----------------- GETTERS ----------------- *//
     public static int getMapWidth() {
         return MAP_WIDTH;
     }
@@ -182,7 +185,6 @@ public class MapGenerator {
     public static int getMapHeight() {
         return MAP_HEIGHT;
     }
-
 
     public static short[][] getMap() {
         short[][] temp = new short[MAP_HEIGHT][MAP_WIDTH];
