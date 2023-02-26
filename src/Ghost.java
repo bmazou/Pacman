@@ -64,7 +64,7 @@ public class Ghost extends GameObject {
     protected void randomizeStartingPosition() {
         short[][] map = MapGenerator.getMap();
         int tempY, tempX;
-        int minDistanceFromPacman = (int) Math.sqrt(App.X_BLOCK_COUNT*App.Y_BLOCK_COUNT) / 2;
+        int minDistanceFromPacman = (int) Math.sqrt(App.X_BLOCK_COUNT*App.Y_BLOCK_COUNT);
         int pacmanY = pacman.getPosArrY();
         int pacmanX = pacman.getPosArrX();
 

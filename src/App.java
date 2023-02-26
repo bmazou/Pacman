@@ -18,20 +18,20 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 public class App extends JPanel implements ActionListener {
-    private final Font smallFont = new Font("Arial", Font.BOLD, BLOCK_SIZE);
     public boolean inGame = false;
     public boolean dying = false;
+    public boolean gameWon = false;
 
     public static final int TIMER_DELAY = 15;
     private final short[][] levelData = Map.getMap();
     public static final int BLOCK_SIZE = 36;
     public static final int X_BLOCK_COUNT = Map.getMapWidth();
     public static final int Y_BLOCK_COUNT = Map.getMapHeight();
-
+    private final Font smallFont = new Font("Arial", Font.BOLD, BLOCK_SIZE*X_BLOCK_COUNT/10);
     public static final int SCREEN_WIDTH = X_BLOCK_COUNT * BLOCK_SIZE;
     public static final int SCREEN_HEIGHT = Y_BLOCK_COUNT * BLOCK_SIZE;
-    // public static final int N_BLOCKS = Map.getMap().length;
     public int lives, score;
+    public int foodCount;
     
     private Image heart, ghost;
     private Image up, down, left, right;
@@ -54,15 +54,15 @@ public class App extends JPanel implements ActionListener {
 
         System.out.println("Ghost count: " + GHOST_COUNT);
         
-        // TODO: Add win condition
     }
+
 
     private void setGhostCount() {
         int numOfBlocks = X_BLOCK_COUNT * Y_BLOCK_COUNT;
 
-        // Set GHOST_COUNT to the number of blocks ** 3
-        GHOST_COUNT = (int) Math.pow(numOfBlocks, 0.30) - 1;
-    
+        // GHOST_COUNT = (int) Math.pow(numOfBlocks, 0.30) - 1;
+        GHOST_COUNT = 0;
+
     }
 
     private void loadImages() {
@@ -120,20 +120,32 @@ public class App extends JPanel implements ActionListener {
     }
 
     private void playGame(Graphics2D g2d) {
+        if (score == foodCount) {
+            gameWon = true;
+            inGame = false;
+        }
+
         if (dying) {
             death();
-
-        } else {
+        }
+        else {
             pacman.move();
             drawPacman(g2d);
             moveGhosts(g2d);
         }
     }
 
+    private void showWinScreen(Graphics2D g2d) {
+        String win = "You win!";
+        g2d.setColor(Color.yellow);
+        g2d.drawString(win, X_BLOCK_COUNT*BLOCK_SIZE/4, Y_BLOCK_COUNT*BLOCK_SIZE/2 - smallFont.getSize());
+        showIntroScreen(g2d);
+    }
+
     private void showIntroScreen(Graphics2D g2d) {
         String start = "Press SPACE to start";
         g2d.setColor(Color.yellow);
-        g2d.drawString(start, X_BLOCK_COUNT*BLOCK_SIZE/4, Y_BLOCK_COUNT*BLOCK_SIZE/2);
+        g2d.drawString(start, 0, Y_BLOCK_COUNT*BLOCK_SIZE/2);
     }
 
     private void drawScore(Graphics2D g) {
@@ -256,11 +268,14 @@ public class App extends JPanel implements ActionListener {
         lives = 3;
         score = 0;
         resetMap();
+        Map.printMap(levelData, "Printing levelData");
+        foodCount = Map.getFoodCount();
+        System.out.println("Food count: " + foodCount);
         respawn();
     }
 
     
-    // Get's called during beginning of game and when pacman loses a life: resets pacman and ghosts
+    // Get's called during beginning of game or when pacman loses a life: resets pacman and ghosts
     private void respawn() {
         pacman.newGame();
         for (int i = 0; i < ghosts.length; i++) {
@@ -283,7 +298,10 @@ public class App extends JPanel implements ActionListener {
         if (inGame) {
             playGame(g2d);
         } else {
-            showIntroScreen(g2d);
+            if (gameWon)
+                showWinScreen(g2d);
+            else
+                showIntroScreen(g2d);
         }
 
         Toolkit.getDefaultToolkit().sync();
@@ -298,13 +316,13 @@ public class App extends JPanel implements ActionListener {
 
             if (inGame) {
                 if (key == KeyEvent.VK_LEFT) {
-                    pacman.requestedDir = Direction.LEFT;
+                    pacman.requestDirection(Direction.LEFT);
                 } else if (key == KeyEvent.VK_RIGHT) {
-                    pacman.requestedDir = Direction.RIGHT;
+                    pacman.requestDirection(Direction.RIGHT);
                 } else if (key == KeyEvent.VK_UP) {
-                    pacman.requestedDir = Direction.UP;
+                    pacman.requestDirection(Direction.UP);
                 } else if (key == KeyEvent.VK_DOWN) {
-                    pacman.requestedDir = Direction.DOWN;
+                    pacman.requestDirection(Direction.DOWN);
                 } else if (key == KeyEvent.VK_ESCAPE && timer.isRunning()) {
                     inGame = false;
                 }

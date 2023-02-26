@@ -1,8 +1,10 @@
 import java.util.ArrayList;
 
 public class MapGenerator {
-    private static final int MAP_WIDTH = (int) (Math.random() * 20 + 11); 
-    private static final int MAP_HEIGHT = (int) (Math.random() * 15 + 11);
+    // private static final int MAP_WIDTH = (int) (Math.random() * 20 + 11); 
+    // private static final int MAP_HEIGHT = (int) (Math.random() * 15 + 11);
+    private static final int MAP_WIDTH = 4;
+    private static final int MAP_HEIGHT = 4;
     private static final float BRANCH_CHANCE = 0.15f;    
     private static final int MAX_BRANCHES = 2;    
 
@@ -19,19 +21,22 @@ public class MapGenerator {
         fillEdges();
         System.out.println("Map size: " + MAP_WIDTH + "x" + MAP_HEIGHT);
 
-        int[] spawnPositions = generateSpawnPositions();
+        branchRandomlyFromWall(Direction.LEFT, 2);
+        return;
+        
+        // int[] spawnPositions = generateSpawnPositions();
 
-        if (MAP_HEIGHT < MAP_WIDTH) {
-            branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
-            branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
-            branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
-            branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
-        }else {
-            branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
-            branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
-            branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
-            branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
-        }
+        // if (MAP_HEIGHT < MAP_WIDTH) {
+        //     branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+        //     branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
+        //     branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
+        //     branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+        // }else {
+        //     branchRandomlyFromWall(Direction.UP, spawnPositions[0]);
+        //     branchRandomlyFromWall(Direction.DOWN, spawnPositions[1]);
+        //     branchRandomlyFromWall(Direction.LEFT, spawnPositions[2]);
+        //     branchRandomlyFromWall(Direction.RIGHT, spawnPositions[3]);
+        // }
     }
 
     private static void fillEdges() {

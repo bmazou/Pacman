@@ -25,6 +25,10 @@ public class Pacman extends GameObject {
         }
     }
 
+    public void requestDirection(Direction dir) {
+        requestedDir = dir;
+    }
+
     @Override
     public void newGame() {
         randomizeStartingPosition();

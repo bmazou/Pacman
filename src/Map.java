@@ -218,9 +218,18 @@ public class Map {
         return MapGenerator.getMapHeight();
     }
 
+    public static int getFoodCount() {
+        int count = 0;
+        for (int y = 0; y < getMapHeight(); y++) {
+            for (int x = 0; x < getMapWidth(); x++) {
+                if ((curMap[y][x]& 16) != 0) {
+                    count++;
+                }
+            }
+        }
 
-
-    // TODO Dva konstruktory, jeden se seedem, jeden bez
+        return count;
+    }
 }
 
 
