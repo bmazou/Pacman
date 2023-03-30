@@ -26,11 +26,11 @@
 
 | ![unwanted neigbouring paths](map-imgs/unwanted_neigbouring_paths.png) | ![subbranching](map-imgs/subbranching.png)|
 |:--:| :--|
-| *Unwanted neigbouring paths* | *Example of branching: branch starts at the middle of the top wall. It than creates a subbranch on its right and than on its left. The first subbranch also branches to its right* |
+| *Unwanted neigbouring paths* | *Example of branching: branch starts at the middle of the top wall and starts going down. It then creates a subbranch on its right and then on its left. The first subbranch also branches to its right* |
 
-## <ins>Map logic</ins>
+## Map logic
 *Images, animations and logic of the map came from following repo: https://github.com/Gaspared/Pacman*
-- The map we generated then gets converted to the map with the following logic:
+- The map we generated then gets converted to a map with the following logic:
 - Map is a NxM array of *short* values, which follow the ensuing rules:
   - 0 - zeroes represent walls
   - Any other number is a free path, that has...
@@ -42,7 +42,7 @@
   - e.g. if a tile contains 28, it means that it contains food, and has a right and bottom border... Implying that on its left and top are free paths 
 - Each tile is then visualised as a square with 36x36 pixels, on which the ghosts and pacman move
 
-## <ins>Pacman and Ghosts</ins>
+## Pacman and Ghosts
 - Both of these inherit a **GameObject** class, which has:
   - *x* and *y* coordinates, speed, and a ***direction*** (up, down, left, right, none)
   - It has simple methods for moving in a given direction, and checking for collisions with walls
@@ -66,7 +66,7 @@
   - They look up their directions in a HashMap, that takes positions of two tiles, and returns the direction to go from the first tile to the second
   - The HashMap is precalculated so that ghosts don't have to calculate directions every time, and the game can run smoothly
 
-## <ins>Path seeking algorithm</ins>
+## Path seeking algorithm
 - It uses the A* algorithm, which is a variant of Dijkstra's algorithm that uses heuristics to find the shortest path
 - A great decription of the algorithm can be found here: https://youtu.be/-L-WgKMFuhE
 - As said above, the directions for each pair of tiles are precalculated and stored in a HashMap
